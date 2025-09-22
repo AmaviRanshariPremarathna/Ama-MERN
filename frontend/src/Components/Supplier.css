@@ -1,0 +1,227 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  --info-color: #3b82f6;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --bg-white: #ffffff;
+  --bg-gray-50: #f9fafb;
+  --bg-gray-100: #f3f4f6;
+  --border-color: #e5e7eb;
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+}
+
+/* Balance supplier page with sidebar */
+.supplier-container {
+  min-height: 100vh;
+  background: var(--bg-gray-50);
+  font-family: "Inter", sans-serif;
+
+  margin-left: 180px; /* ⬅️ same as sidebar width */
+  padding: 20px;
+}
+
+/* Hero Section */
+.supplier-hero {
+  background: var(--primary-gradient);
+  padding: 50px 20px;
+  text-align: center;
+  color: white;
+}
+
+.hero-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.supplier-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.supplier-subtitle {
+  font-size: 16px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+/* Controls */
+.controls-section {
+  padding: 20px;
+}
+
+.search-section {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-container {
+  flex: 1;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  background: var(--bg-white);
+  box-shadow: var(--shadow-md);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-button,
+.add-button {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s;
+}
+
+.filter-button {
+  background: #f3f4f6;
+  color: var(--text-primary);
+}
+
+.filter-button.active,
+.filter-button:hover {
+  background: var(--info-color);
+  color: white;
+}
+
+.add-button {
+  background: var(--primary-gradient);
+  color: white;
+}
+
+/* Filter Panel */
+.filter-panel {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.filter-panel.show {
+  max-height: 100px;
+  opacity: 1;
+}
+
+.filter-select {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-white);
+}
+
+/* Table */
+.table-container {
+  margin: 20px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-white);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 40px 1.5fr 1fr 1.5fr 1fr 1.5fr 1.5fr 1fr 100px;
+  padding: 14px;
+  background: var(--bg-gray-100);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 40px 1.5fr 1fr 1.5fr 1fr 1.5fr 1.5fr 1fr 100px;
+  padding: 14px;
+  border-top: 1px solid var(--border-color);
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.table-row:hover {
+  background: var(--bg-gray-50);
+}
+
+.table-cell {
+  display: flex;
+  align-items: center;
+}
+
+.supplier-name {
+  font-weight: 600;
+}
+
+.books-supplied {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.last-updated {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.edit-icon:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--info-color);
+}
+
+.delete-icon:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.more-icon:hover {
+  background: rgba(107, 114, 128, 0.1);
+}
