@@ -4,7 +4,6 @@ import {
   FaBook,
   FaPencilAlt,
   FaTrashAlt,
-  FaEllipsisH,
   FaSort,
   FaPlus,
   FaSearch,
@@ -62,7 +61,7 @@ const initialProducts = [
 const Product = () => {
   const [products, setProducts] = useState(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+    const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [selectedSupplier, setSelectedSupplier] = useState("All Suppliers");
   const [showForm, setShowForm] = useState(false);
@@ -223,7 +222,7 @@ const Product = () => {
   };
 
   return (
-    <div className="product-container">
+    <div className="product-container" style={{ marginLeft: '240px' }}>
       {/* Hero Section */}
       <div className="hero-section">
         <div className="hero-content">
@@ -264,7 +263,7 @@ const Product = () => {
         </div>
 
         {/* Animated Filter Panel */}
-        <div className={`filter-panel ${showFilters ? 'show' : ''}`}>
+          <div className={`filter-panel${showFilters ? ' show' : ''}`}>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}

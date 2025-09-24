@@ -5,9 +5,11 @@ import Dashboard from './Components/Dashboard';
 import Product from './Components/Product';
 import Category from './Components/Category';
 import Alerts from './Components/Alerts';
+import Report from './Components/Report'; // ✅ Import Report
 import BookDescription from './Components/BookDescription';
 import Supplier from './Components/Supplier';
 import Profile from './Components/Profile'; // ✅ Import Profile
+import BorrowReturn from './Components/BorrowReturn';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home'); // Default page is Home
@@ -43,10 +45,14 @@ function App() {
         );
       case 'alerts':
         return <Alerts />;
+      case 'report': // ✅ New Report page
+        return <Report />;
       case 'suppliers': 
         return <Supplier />;
       case 'profile': // ✅ New Profile page
         return <Profile />;
+      case 'borrowReturn':
+        return <BorrowReturn />;
       default:
         return <Home />;
     }

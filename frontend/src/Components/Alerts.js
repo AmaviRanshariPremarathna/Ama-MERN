@@ -12,7 +12,7 @@ const initialBooks = [
     price: 38.50, 
     supplier: "CodePress", 
     lastRestocked: "2024-02-10",
-    finePerDay: 5.00,
+    finePerDay: 20.00,
     borrowedCopies: [],
     maxBorrowDays: 14
   },
@@ -26,7 +26,7 @@ const initialBooks = [
     price: 52.75, 
     supplier: "Business Books Inc", 
     lastRestocked: "2024-03-01",
-    finePerDay: 5.00,
+    finePerDay: 20.00,
     borrowedCopies: [],
     maxBorrowDays: 14
   },
@@ -40,7 +40,7 @@ const initialBooks = [
     price: 67.99, 
     supplier: "Math Publishers", 
     lastRestocked: "2024-02-28",
-    finePerDay: 5.00,
+    finePerDay: 20.00,
     borrowedCopies: [],
     maxBorrowDays: 14
   },
@@ -138,9 +138,16 @@ const Alerts = () => {
     return "safe";
   };
 
+  // Notification logic
+  const [lowStockNotification, setLowStockNotification] = useState("");
   const showNotification = (message, type = "success") => {
-    setNotification(message);
-    setTimeout(() => setNotification(""), 5000);
+    if (type === "low-stock") {
+      setLowStockNotification(message);
+      setTimeout(() => setLowStockNotification(""), 7000);
+    } else {
+      setNotification(message);
+      setTimeout(() => setNotification(""), 5000);
+    }
   };
 
   const openRestockModal = (book) => {
@@ -248,7 +255,10 @@ const Alerts = () => {
       stock,
       threshold,
       price,
-      lastRestocked: new Date().toISOString().split('T')[0]
+      lastRestocked: new Date().toISOString().split('T')[0],
+      finePerDay: 20.00,
+      borrowedCopies: [],
+      maxBorrowDays: 14
     };
     
     setBooks([...books, bookToAdd]);
@@ -422,13 +432,21 @@ const Alerts = () => {
     return (books.reduce((total, book) => total + book.price, 0) / books.length).toFixed(2);
   };
 
-    // Fine Management Functions
-  const calculateFine = (borrowDate, returnDate, finePerDay) => {
-    const borrowDateTime = new Date(borrowDate).getTime();
-    const returnDateTime = new Date(returnDate).getTime();
-    const diffTime = returnDateTime - borrowDateTime;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays * finePerDay);
+  // Fine Management Functions
+  // Calculates fine for late submission
+  const calculateFine = (borrowDate, dueDate, returnDate, finePerDay = 20) => {
+    // Dates as YYYY-MM-DD
+    const borrow = new Date(borrowDate);
+    const due = new Date(dueDate);
+    const returned = new Date(returnDate);
+    // Book can be kept for max 14 days
+    const maxDays = 14;
+    const actualDays = Math.ceil((returned - borrow) / (1000 * 60 * 60 * 24));
+    const lateDays = actualDays - maxDays;
+    if (lateDays > 0) {
+      return lateDays * finePerDay;
+    }
+    return 0;
   };
 
   const handleBorrowBook = (bookId, borrower) => {
@@ -461,6 +479,7 @@ const Alerts = () => {
 
     const fine = calculateFine(
       borrowedCopy.borrowDate,
+      borrowedCopy.dueDate,
       new Date().toISOString(),
       book.finePerDay
     );
@@ -494,7 +513,7 @@ const Alerts = () => {
 
   const handleFinePayment = () => {
     completeReturn(selectedBorrower.bookId, selectedBorrower.borrowerId);
-    showNotification(`Fine of Rs ${fineAmount} collected from ${selectedBorrower.borrowerName}`);
+    showNotification(`Fine of $${fineAmount} collected from ${selectedBorrower.borrowerName}`);
     setShowFineModal(false);
     setSelectedBorrower(null);
     setFineAmount(0);
@@ -586,9 +605,16 @@ const Alerts = () => {
 
   return (
     <div className="alerts-page">
+      {/* Main notification */}
       {notification && (
         <div className={`notification ${notification.includes("⚠️") || notification.includes("🚨") || notification.includes("❌") ? "warning" : "success"}`}>
           {notification}
+        </div>
+      )}
+      {/* Low stock notification area */}
+      {lowStockNotification && (
+        <div className="low-stock-notification">
+          <span role="img" aria-label="warning">⚠️</span> {lowStockNotification}
         </div>
       )}
 
@@ -720,7 +746,7 @@ const Alerts = () => {
                 <th>Book Details</th>
                 <th>Stock Level</th>
                 <th>Status</th>
-                <th>Borrowed Copies</th>
+                {/* <th>Borrowed Copies</th> */}
                 <th>Value</th>
                 <th>Last Restocked</th>
                 <th>Actions</th>
@@ -761,6 +787,7 @@ const Alerts = () => {
                         {status === "out-of-stock" && " ⚠️"}
                       </span>
                     </td>
+                    {/* <td className="borrowed-copies"> ...removed... </td> */}
                     <td className="value-cell">
                       <div className="total-value">${(book.stock * book.price).toFixed(2)}</div>
                       <div className="unit-price">${book.price} each</div>
@@ -775,34 +802,6 @@ const Alerts = () => {
                       <div className="days-ago">
                         {daysSinceRestock} days ago
                       </div>
-                    </td>
-                    <td className="borrowed-copies">
-                      {book.borrowedCopies.filter(copy => !copy.returned).map(copy => (
-                        <div key={`${copy.borrowerId}-${copy.borrowDate}`} className="borrowed-copy">
-                          <div>{copy.borrowerName}</div>
-                          <div className="borrow-dates">
-                            <small>Borrowed: {new Date(copy.borrowDate).toLocaleDateString()}</small>
-                            <small>Due: {new Date(copy.dueDate).toLocaleDateString()}</small>
-                          </div>
-                          <button 
-                            className="btn btn-sm btn-danger"
-                            onClick={() => handleReturnBook(book.id, copy.borrowerId)}
-                          >
-                            Return
-                          </button>
-                        </div>
-                      ))}
-                      {book.stock > 0 && (
-                        <button
-                          className="btn btn-sm btn-primary"
-                          onClick={() => handleBorrowBook(book.id, { 
-                            id: 'user-' + Date.now(), 
-                            name: prompt('Enter borrower name:') 
-                          })}
-                        >
-                          Borrow
-                        </button>
-                      )}
                     </td>
                     <td className="actions-cell">
                       <div className="action-buttons">
@@ -1193,16 +1192,21 @@ const Alerts = () => {
 
       {/* Fine Modal */}
       {showFineModal && selectedBorrower && (
-        <div className="fine-modal">
-          <div className="fine-modal-content">
-            <h3>Late Return Fine</h3>
-            <p>Borrower: {selectedBorrower.borrowerName}</p>
-            <p>Fine Amount: Rs {fineAmount}</p>
-            <div className="fine-modal-actions">
-              <button onClick={handleFinePayment}>
-                Collect Fine & Return Book
-              </button>
-              <button onClick={() => setShowFineModal(false)}>Cancel</button>
+        <div className="modal-overlay">
+          <div className="fine-modal">
+            <div className="modal-header">
+              <h2>Late Return Fine</h2>
+              <button className="close-btn" onClick={() => setShowFineModal(false)}>×</button>
+            </div>
+            <div className="fine-modal-content">
+              <p>Borrower: {selectedBorrower.borrowerName}</p>
+              <p>Fine Amount: ${fineAmount}</p>
+              <div className="modal-buttons">
+                <button className="btn btn-danger" onClick={handleFinePayment}>
+                  Collect Fine & Return Book
+                </button>
+                <button className="btn btn-secondary" onClick={() => setShowFineModal(false)}>Cancel</button>
+              </div>
             </div>
           </div>
         </div>
