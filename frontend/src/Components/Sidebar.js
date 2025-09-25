@@ -7,7 +7,9 @@ import {
   FaTh, 
   FaTruck, 
   FaUsers, 
-  FaCog, 
+  FaChartBar, 
+  FaUserCog, 
+  FaExchangeAlt  // ✅ Added for Borrow & Return
 } from 'react-icons/fa';
 
 const Sidebar = ({ currentPage, setCurrentPage }) => {
@@ -16,7 +18,6 @@ const Sidebar = ({ currentPage, setCurrentPage }) => {
       <h2 className="sidebar-title">Inventory MS</h2>
       <ul className="sidebar-menu">
 
-        {/* ✅ Home link */}
         <li 
           className={`menu-item ${currentPage === 'home' ? 'active' : ''}`} 
           onClick={() => setCurrentPage('home')}
@@ -49,12 +50,29 @@ const Sidebar = ({ currentPage, setCurrentPage }) => {
           <span>Categories</span>
         </li>
 
+        {/* ✅ Borrow & Return link */}
+        <li 
+          className={`menu-item ${currentPage === 'borrowReturn' ? 'active' : ''}`} 
+          onClick={() => setCurrentPage('borrowReturn')}
+        >
+          <FaExchangeAlt className="menu-icon" />
+          <span>Borrow & Return</span>
+        </li>
+
         <li 
           className={`menu-item ${currentPage === 'alerts' ? 'active' : ''}`} 
           onClick={() => setCurrentPage('alerts')}
         >
           <FaTruck className="menu-icon" />
           <span>Alerts</span>
+        </li>
+
+        <li 
+          className={`menu-item ${currentPage === 'report' ? 'active' : ''}`} 
+          onClick={() => setCurrentPage('report')}
+        >
+          <FaChartBar className="menu-icon" />
+          <span>Reports</span>
         </li>
 
         <li 
@@ -69,7 +87,7 @@ const Sidebar = ({ currentPage, setCurrentPage }) => {
           className={`menu-item ${currentPage === 'profile' ? 'active' : ''}`} 
           onClick={() => setCurrentPage('profile')}
         >
-          <FaCog className="menu-icon" />
+          <FaUserCog className="menu-icon" />
           <span>Profile</span>
         </li>
       </ul>
