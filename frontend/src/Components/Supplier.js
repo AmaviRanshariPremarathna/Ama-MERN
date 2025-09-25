@@ -10,31 +10,17 @@ import {
   FaTruck,
 } from "react-icons/fa";
 
-const initialSuppliers = [
-  {
-    id: 1,
-    name: "Pearson Publishers",
-    contact: "John Doe",
-    email: "john@pearson.com",
-    phone: "+94 77 123 4567",
-    address: "123, High Level Road, Colombo",
-    books: "Computer Science, AI, Data Science",
-    lastUpdated: "2025-09-01",
-  },
-  {
-    id: 2,
-    name: "Oxford Bookstore",
-    contact: "Mary Smith",
-    email: "mary@oxfordbooks.com",
-    phone: "+94 71 987 6543",
-    address: "45, Galle Road, Colombo",
-    books: "Mathematics, Physics, Engineering",
-    lastUpdated: "2025-08-28",
-  },
-];
+// Backend CRUD API base URL
+const API_URL = "http://localhost:5000/suppliers";
 
 export default function Supplier() {
-    const [suppliers, setSuppliers] = useState(initialSuppliers);
+  const [suppliers, setSuppliers] = useState([]);
+    // Fetch all suppliers from backend
+    React.useEffect(() => {
+      fetch(API_URL)
+        .then((res) => res.json())
+        .then((data) => setSuppliers(data));
+    }, []);
     const [filterOpen, setFilterOpen] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
@@ -55,24 +41,29 @@ export default function Supplier() {
       setNewSupplier({ ...newSupplier, [name]: value });
     };
 
-    const handleFormSubmit = (e) => {
+    const handleFormSubmit = async (e) => {
       e.preventDefault();
+      const payload = {
+        ...newSupplier,
+        lastUpdated: new Date().toISOString().slice(0, 10),
+      };
       if (isEditing) {
-        setSuppliers(suppliers.map(sup =>
-          sup.id === editSupplierId
-            ? { ...newSupplier, id: editSupplierId, lastUpdated: new Date().toISOString().slice(0, 10) }
-            : sup
-        ));
+        await fetch(`${API_URL}/${editSupplierId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
       } else {
-        setSuppliers([
-          ...suppliers,
-          {
-            ...newSupplier,
-            id: suppliers.length + 1,
-            lastUpdated: new Date().toISOString().slice(0, 10),
-          },
-        ]);
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
       }
+      // Refresh suppliers
+      fetch(API_URL)
+        .then((res) => res.json())
+        .then((data) => setSuppliers(data));
       setShowForm(false);
       setIsEditing(false);
       setEditSupplierId(null);
@@ -104,14 +95,18 @@ export default function Supplier() {
 
     const handleEdit = (supplier) => {
       setIsEditing(true);
-      setEditSupplierId(supplier.id);
+      setEditSupplierId(supplier._id);
       setNewSupplier({ ...supplier });
       setShowForm(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
       if (window.confirm("Are you sure you want to delete this supplier?")) {
-        setSuppliers(suppliers.filter(sup => sup.id !== id));
+        await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        // Refresh suppliers
+        fetch(API_URL)
+          .then((res) => res.json())
+          .then((data) => setSuppliers(data));
       }
     };
 
@@ -254,7 +249,7 @@ export default function Supplier() {
             </div>
 
             {suppliers.map((supplier, index) => (
-              <div className="table-row" key={supplier.id}>
+              <div className="table-row" key={supplier._id}>
                 <div className="table-cell">{index + 1}</div>
                 <div className="table-cell supplier-name">{supplier.name}</div>
                 <div className="table-cell">{supplier.contact}</div>

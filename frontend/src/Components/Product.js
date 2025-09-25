@@ -10,65 +10,20 @@ import {
   FaFilter,
 } from "react-icons/fa";
 
-const initialProducts = [
-  {
-    id: 1,
-    icon: <FaBook />,
-    name: "Introduction to Algorithms",
-    code: "CS-001",
-    category: "Information Technology",
-    price: "1500.00",
-    stockCurrent: 142,
-    stockTotal: 200,
-    stockColor: "#3b82f6",
-    status: "IN STOCK",
-    statusColor: "#22c55e",
-    supplier: "MIT Press",
-    lastUpdated: "2 hours ago",
-  },
-  {
-    id: 2,
-    icon: <FaBook />,
-    name: "The Art of Solving Problems",
-    code: "CS-002",
-    category: "Computer Science",
-    price: "800.00",
-    stockCurrent: 8,
-    stockTotal: 50,
-    stockColor: "#f59e0b",
-    status: "LOW STOCK",
-    statusColor: "#f59e0b",
-    supplier: "Pearson",
-    lastUpdated: "4 hours ago",
-  },
-  {
-    id: 3,
-    icon: <FaBook />,
-    name: "Hacking",
-    code: "CS-003",
-    category: "Cyber Security",
-    price: "600.00",
-    stockCurrent: 0,
-    stockTotal: 100,
-    stockColor: "#6b7280",
-    status: "OUT OF STOCK",
-    statusColor: "#ef4444",
-    supplier: "McGraw-Hill",
-    lastUpdated: "1 day ago",
-  },
-];
+// Backend CRUD API base URL
+const API_URL = "http://localhost:5000/products";
+
 
 const Product = () => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [selectedSupplier, setSelectedSupplier] = useState("All Suppliers");
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editProductId, setEditProductId] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-
   const [newProduct, setNewProduct] = useState({
     name: "",
     code: "",
@@ -80,9 +35,69 @@ const Product = () => {
     supplier: "",
   });
 
-  const categories = ["All Categories", ...new Set(products.map((p) => p.category))];
-  const statuses = ["All Status", ...new Set(products.map((p) => p.status))];
-  const suppliers = ["All Suppliers", ...new Set(products.map((p) => p.supplier))];
+  // Fetch all products from backend
+  React.useEffect(() => {
+    fetch(API_URL)
+      .then((res) => res.json())
+      .then((data) => {
+        // Add icon and color fields for UI
+        setProducts(
+          data.map((p) => ({
+            ...p,
+            icon: <FaBook />,
+            stockColor:
+              p.stockCurrent / p.stockTotal > 0.5
+                ? "#3b82f6"
+                : p.stockCurrent > 0
+                ? "#f59e0b"
+                : "#6b7280",
+            statusColor:
+              p.status === "IN STOCK"
+                ? "#22c55e"
+                : p.status === "LOW STOCK"
+                ? "#f59e0b"
+                : "#ef4444",
+          }))
+        );
+      });
+  }, []);
+
+  // Default options for dropdowns
+  const defaultCategories = [
+    "Information Technology",
+    "Computer Science",
+    "Cyber Security",
+    "Mathematics",
+    "Engineering",
+    "Literature",
+    "Other"
+  ];
+  const defaultStatuses = [
+    "IN STOCK",
+    "LOW STOCK",
+    "OUT OF STOCK"
+  ];
+  const defaultSuppliers = [
+    "MIT Press",
+    "Pearson",
+    "McGraw-Hill",
+    "Oxford",
+    "Other"
+  ];
+
+  // Merge product values with defaults for dropdowns
+  const categories = [
+    "All Categories",
+    ...Array.from(new Set([...defaultCategories, ...products.map((p) => p.category).filter(Boolean)])),
+  ];
+  const statuses = [
+    "All Status",
+    ...Array.from(new Set([...defaultStatuses, ...products.map((p) => p.status).filter(Boolean)])),
+  ];
+  const suppliers = [
+    "All Suppliers",
+    ...Array.from(new Set([...defaultSuppliers, ...products.map((p) => p.supplier).filter(Boolean)])),
+  ];
 
   const filteredProducts = products.filter((p) => {
     const lowerSearch = searchTerm.toLowerCase();
@@ -120,55 +135,56 @@ const Product = () => {
     setNewProduct({ ...newProduct, [name]: value });
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     const stockCurrent = parseInt(newProduct.stockCurrent);
     const stockTotal = parseInt(newProduct.stockTotal);
-    const stockPercent = (stockCurrent / stockTotal) * 100;
-    let statusColor = "#22c55e";
-
-    let statusText = newProduct.status.toUpperCase();
-    if (statusText === "IN STOCK") statusColor = "#22c55e";
-    else if (statusText === "LOW STOCK") statusColor = "#f59e0b";
-    else if (statusText === "OUT OF STOCK") statusColor = "#ef4444";
-
+    const statusText = newProduct.status.toUpperCase();
+    const payload = {
+      ...newProduct,
+      stockCurrent,
+      stockTotal,
+      status: statusText,
+      lastUpdated: new Date().toLocaleString(),
+    };
     if (isEditing) {
       // Update product
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editProductId
-            ? {
-                ...p,
-                ...newProduct,
-                stockCurrent,
-                stockTotal,
-                stockColor:
-                  stockPercent > 50 ? "#3b82f6" : stockPercent > 0 ? "#f59e0b" : "#6b7280",
-                status: statusText,
-                statusColor,
-                lastUpdated: "Just now",
-              }
-            : p
-        )
-      );
+      await fetch(`${API_URL}/${editProductId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
     } else {
       // Add product
-      const id = products.length + 1;
-      const productToAdd = {
-        id,
-        icon: <FaBook />,
-        ...newProduct,
-        stockCurrent,
-        stockTotal,
-        stockColor:
-          stockPercent > 50 ? "#3b82f6" : stockPercent > 0 ? "#f59e0b" : "#6b7280",
-        status: statusText,
-        statusColor,
-        lastUpdated: "Just now",
-      };
-      setProducts([...products, productToAdd]);
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
     }
-
+    // Refresh products
+    fetch(API_URL)
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(
+          data.map((p) => ({
+            ...p,
+            icon: <FaBook />,
+            stockColor:
+              p.stockCurrent / p.stockTotal > 0.5
+                ? "#3b82f6"
+                : p.stockCurrent > 0
+                ? "#f59e0b"
+                : "#6b7280",
+            statusColor:
+              p.status === "IN STOCK"
+                ? "#22c55e"
+                : p.status === "LOW STOCK"
+                ? "#f59e0b"
+                : "#ef4444",
+          }))
+        );
+      });
     setShowForm(false);
     setNewProduct({
       name: "",
@@ -201,7 +217,7 @@ const Product = () => {
   // -------------------------------
   const handleEdit = (product) => {
     setIsEditing(true);
-    setEditProductId(product.id);
+    setEditProductId(product._id);
     setNewProduct({
       name: product.name,
       code: product.code,
@@ -215,9 +231,32 @@ const Product = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      setProducts(products.filter((p) => p.id !== id));
+      await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+      // Refresh products
+      fetch(API_URL)
+        .then((res) => res.json())
+        .then((data) => {
+          setProducts(
+            data.map((p) => ({
+              ...p,
+              icon: <FaBook />,
+              stockColor:
+                p.stockCurrent / p.stockTotal > 0.5
+                  ? "#3b82f6"
+                  : p.stockCurrent > 0
+                  ? "#f59e0b"
+                  : "#6b7280",
+              statusColor:
+                p.status === "IN STOCK"
+                  ? "#22c55e"
+                  : p.status === "LOW STOCK"
+                  ? "#f59e0b"
+                  : "#ef4444",
+            }))
+          );
+        });
     }
   };
 

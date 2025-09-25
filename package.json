@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "cors": "^2.8.5",
     "html2pdf.js": "^0.12.1",
     "react-router-dom": "^7.8.2",
     "react-scripts": "^0.0.0"

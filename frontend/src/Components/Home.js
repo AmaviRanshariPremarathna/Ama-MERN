@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "./Home.css";
+import Sidebar from "./Sidebar";
 
 const Home = () => {
   useEffect(() => {
@@ -29,45 +30,42 @@ const Home = () => {
   }, []);
 
   return (
-    <>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="nav-container">
-          <div className="logo">📚 BookSwap</div>
-          <ul className="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#features">Features</a></li>
-            <li><a href="#how-it-works">How It Works</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-          </ul>
-          <div className="nav-cta">
-            <a href="#login" className="btn-login">Login</a>
-            <a href="#signup" className="btn-primary">Join Now</a>
-          </div>
-        </div>
-      </nav>
+    <div className="app-layout">
+      <Sidebar />
 
-      {/* Main content wrapper for sidebar alignment */}
-      <div className="home-main-content">
+      <div className="main-content">
+        {/* Navbar */}
+        <nav className="navbar">
+          <div className="nav-container">
+            <div className="logo-section">
+              <span className="logo-icon">📚</span>
+              <span className="logo-text">BookSwap</span>
+            </div>
+            <ul className="nav-links">
+              <li><a href="#home">Home</a></li>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#about">About Us</a></li>
+              <li><a href="#contact">Contact Us</a></li>
+              <li><a href="#login" className="btn-login">Login</a></li>
+              <li><a href="#signup" className="btn-primary">Sign Up</a></li>
+            </ul>
+          </div>
+        </nav>
+
         {/* Hero Section */}
         <section className="hero" id="home">
           <div className="hero-overlay">
             <div className="hero-content">
-              <h1>Exchange Books, Expand Knowledge</h1>
-              <p>
-                Connect with fellow students, trade textbooks, and build a
-                sustainable learning community. Save money while sharing knowledge.
-              </p>
+              <h1>Books That Travel, Knowledge That Lasts</h1>
+              <p>Trade your textbooks, support peers, and build a thriving learning community together.</p>
               <div className="hero-buttons">
                 <a href="#features" className="btn-primary">Get Started</a>
-                <a href="#how-it-works" className="btn-secondary">Learn More</a>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Features */}
         <section className="features" id="features">
           <h2 className="section-title">Why Choose BookSwap?</h2>
           <div className="features-grid">
@@ -94,7 +92,7 @@ const Home = () => {
           </div>
         </section>
 
-        {/* How It Works Section */}
+        {/* How it Works */}
         <section className="how-it-works" id="how-it-works">
           <h2 className="section-title">How It Works</h2>
           <div className="steps-grid">
@@ -121,64 +119,65 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Footer */}
+        {/* Redesigned Footer */}
         <footer className="footer" id="contact">
-          <div className="footer-newsletter">
-            <p>SUBSCRIBE TO OUR QUARTERLY NEWSLETTER</p>
-            <div className="newsletter-input">
-              <input type="email" placeholder="Enter your email address" />
-              <button>SUBSCRIBE</button>
-            </div>
-          </div>
-          <div className="footer-links-container">
-            <div className="footer-column">
-              <h4>BookSwap</h4>
-              <p>123 College Street, City, Country</p>
-              <p>contact@bookswap.com</p>
-            </div>
-            <div className="footer-column">
-              <h4>Home</h4>
-              <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#how-it-works">How It Works</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-              </ul>
-            </div>
-            <div className="footer-column">
-              <h4>Services</h4>
-              <ul>
-                <li>Book Listing</li>
-                <li>Book Search</li>
-                <li>Trading Support</li>
-              </ul>
-            </div>
-            <div className="footer-column">
-              <h4>Events</h4>
-              <ul>
-                <li>Book Drives</li>
-                <li>Swap Events</li>
-              </ul>
-            </div>
-            <div className="footer-column">
-              <h4>Follow</h4>
-              <div className="social-icons">
-                <a href="#">🐦</a>
-                <a href="#">📘</a>
-                <a href="#">📸</a>
-                <a href="#">📺</a>
-                <a href="#">📌</a>
+          <div className="footer-container">
+            <div className="footer-top">
+              {/* Logo & Description */}
+              <div className="footer-section footer-logo">
+                <div className="logo-content">
+                  <span className="logo-icon">📚</span>
+                  <span className="logo-text">BookSwap</span>
+                </div>
+                <p>Connecting students, sharing knowledge, and promoting sustainable learning through our innovative textbook exchange platform.</p>
+              </div>
+
+              {/* Quick Links */}
+              <div className="footer-section footer-links-section">
+                <h4>Quick Links</h4>
+                <ul>
+                  <li><a href="#home">Home</a></li>
+                  <li><a href="#features">Features</a></li>
+                  <li><a href="#about">About Us</a></li>
+                  <li><a href="#contact">Contact Us</a></li>
+                </ul>
+              </div>
+
+              {/* Contact Info */}
+              <div className="footer-section footer-contact">
+                <h4>Contact Us</h4>
+                <p><strong>Email:</strong> support@bookswap.com</p>
+                <p><strong>Phone:</strong> +94 123 456 789</p>
+                <p><strong>Address:</strong> Faculty of Computing, SLIIT, Malabe</p>
+              </div>
+
+              {/* Social Media */}
+              <div className="footer-section footer-social">
+                <h4>Follow Us</h4>
+                <div className="social-icons">
+                  <a href="#" aria-label="Facebook">
+                    <img src="https://img.icons8.com/color/48/facebook-new.png" alt="Facebook" />
+                  </a>
+                  <a href="#" aria-label="Twitter">
+                    <img src="https://img.icons8.com/color/48/twitter--v1.png" alt="Twitter" />
+                  </a>
+                  <a href="#" aria-label="Instagram">
+                    <img src="https://img.icons8.com/color/48/instagram-new--v1.png" alt="Instagram" />
+                  </a>
+                  <a href="#" aria-label="LinkedIn">
+                    <img src="https://img.icons8.com/color/48/linkedin.png" alt="LinkedIn" />
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="footer-bottom">
-            <p>Terms & Conditions | Privacy Policy | Sitemap</p>
-            <p>&copy; 2025 BookSwap. All rights reserved.</p>
+
+            <div className="footer-bottom">
+              <p>&copy; 2025 BookSwap. All rights reserved. | Privacy Policy | Terms of Service</p>
+            </div>
           </div>
         </footer>
       </div>
-    </>
+    </div>
   );
 };
 
