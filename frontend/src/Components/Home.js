@@ -1,38 +1,23 @@
 import React, { useEffect } from "react";
 import "./Home.css";
-import Sidebar from "./Sidebar";
+// ...existing code...
 
 const Home = () => {
   useEffect(() => {
     // Smooth scrolling
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener("click", function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute("href"));
-        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: "smooth" });
+        }
       });
     });
-
-    // Navbar scroll effect
-    const navbar = document.querySelector(".navbar");
-    const handleScroll = () => {
-      if (window.scrollY > 80) {
-        navbar.classList.add("navbar-scrolled");
-      } else {
-        navbar.classList.remove("navbar-scrolled");
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
   }, []);
 
   return (
     <div className="app-layout">
-      <Sidebar />
-
       <div className="main-content">
         {/* Navbar */}
         <nav className="navbar">
@@ -76,106 +61,66 @@ const Home = () => {
             </div>
             <div className="feature-card">
               <div className="feature-icon">🤝</div>
-              <h3>Trusted Community</h3>
-              <p>Trade with verified students safely.</p>
+              <h3>Peer-to-Peer Exchange</h3>
+              <p>Connect with fellow students for direct book swaps.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">💰</div>
-              <h3>Save Money</h3>
-              <p>Save up to 70% and sell old books easily.</p>
-            </div>
-            <div className="feature-card">
-              <div className="feature-icon">🌍</div>
-              <h3>Eco-Friendly</h3>
-              <p>Give books a second life and reduce waste.</p>
+              <div className="feature-icon">📦</div>
+              <h3>Inventory Alerts</h3>
+              <p>Get notified when your favorite books are available.</p>
             </div>
           </div>
         </section>
 
-        {/* How it Works */}
-        <section className="how-it-works" id="how-it-works">
-          <h2 className="section-title">How It Works</h2>
-          <div className="steps-grid">
-            <div className="step-card">
-              <div className="step-number">1</div>
-              <h3>Create Account</h3>
-              <p>Sign up using your university email.</p>
-            </div>
-            <div className="step-card">
-              <div className="step-number">2</div>
-              <h3>List or Search</h3>
-              <p>Post books you want to sell or search for textbooks.</p>
-            </div>
-            <div className="step-card">
-              <div className="step-number">3</div>
-              <h3>Connect & Trade</h3>
-              <p>Message other students and exchange books safely.</p>
-            </div>
-            <div className="step-card">
-              <div className="step-number">4</div>
-              <h3>Rate & Repeat</h3>
-              <p>Leave reviews and keep trading.</p>
-            </div>
+        {/* About Section */}
+        <section className="about" id="about">
+          <h2 className="section-title">About Us</h2>
+          <div className="about-content">
+            <p>BookSwap is a student-driven platform designed to make textbook exchange easy, affordable, and sustainable. Our mission is to empower learners by facilitating access to educational resources and fostering a collaborative academic community.</p>
           </div>
         </section>
 
-        {/* Redesigned Footer */}
-        <footer className="footer" id="contact">
-          <div className="footer-container">
-            <div className="footer-top">
-              {/* Logo & Description */}
-              <div className="footer-section footer-logo">
-                <div className="logo-content">
-                  <span className="logo-icon">📚</span>
-                  <span className="logo-text">BookSwap</span>
-                </div>
-                <p>Connecting students, sharing knowledge, and promoting sustainable learning through our innovative textbook exchange platform.</p>
-              </div>
-
-              {/* Quick Links */}
-              <div className="footer-section footer-links-section">
-                <h4>Quick Links</h4>
-                <ul>
-                  <li><a href="#home">Home</a></li>
-                  <li><a href="#features">Features</a></li>
-                  <li><a href="#about">About Us</a></li>
-                  <li><a href="#contact">Contact Us</a></li>
-                </ul>
-              </div>
-
-              {/* Contact Info */}
-              <div className="footer-section footer-contact">
-                <h4>Contact Us</h4>
-                <p><strong>Email:</strong> support@bookswap.com</p>
-                <p><strong>Phone:</strong> +94 123 456 789</p>
-                <p><strong>Address:</strong> Faculty of Computing, SLIIT, Malabe</p>
-              </div>
-
-              {/* Social Media */}
-              <div className="footer-section footer-social">
-                <h4>Follow Us</h4>
-                <div className="social-icons">
-                  <a href="#" aria-label="Facebook">
-                    <img src="https://img.icons8.com/color/48/facebook-new.png" alt="Facebook" />
-                  </a>
-                  <a href="#" aria-label="Twitter">
-                    <img src="https://img.icons8.com/color/48/twitter--v1.png" alt="Twitter" />
-                  </a>
-                  <a href="#" aria-label="Instagram">
-                    <img src="https://img.icons8.com/color/48/instagram-new--v1.png" alt="Instagram" />
-                  </a>
-                  <a href="#" aria-label="LinkedIn">
-                    <img src="https://img.icons8.com/color/48/linkedin.png" alt="LinkedIn" />
-                  </a>
-                </div>
-              </div>
+        {/* Contact Section */}
+        <section className="contact" id="contact">
+          <h2 className="section-title">Contact Us</h2>
+          <div className="contact-content">
+            <form className="contact-form">
+              <input type="text" placeholder="Your Name" required />
+              <input type="email" placeholder="Your Email" required />
+              <textarea placeholder="Your Message" required></textarea>
+              <button type="submit" className="btn-primary">Send Message</button>
+            </form>
+            <div className="contact-info">
+              <h4>Contact Us</h4>
+              <p><strong>Email:</strong> support@bookswap.com</p>
+              <p><strong>Phone:</strong> +94 123 456 789</p>
+              <p><strong>Address:</strong> Faculty of Computing, SLIIT, Malabe</p>
             </div>
 
-            <div className="footer-bottom">
-              <p>&copy; 2025 BookSwap. All rights reserved. | Privacy Policy | Terms of Service</p>
+            {/* Social Media */}
+            <div className="footer-section footer-social">
+              <h4>Follow Us</h4>
+              <div className="social-icons">
+                <button type="button" className="icon-btn" aria-label="Facebook" style={{background: 'none', border: 'none', padding: 0}}>
+                  <img src="https://img.icons8.com/color/48/facebook-new.png" alt="Facebook" />
+                </button>
+                <button type="button" className="icon-btn" aria-label="Twitter" style={{background: 'none', border: 'none', padding: 0}}>
+                  <img src="https://img.icons8.com/color/48/twitter--v1.png" alt="Twitter" />
+                </button>
+                <button type="button" className="icon-btn" aria-label="Instagram" style={{background: 'none', border: 'none', padding: 0}}>
+                  <img src="https://img.icons8.com/color/48/instagram-new--v1.png" alt="Instagram" />
+                </button>
+                <button type="button" className="icon-btn" aria-label="LinkedIn" style={{background: 'none', border: 'none', padding: 0}}>
+                  <img src="https://img.icons8.com/color/48/linkedin.png" alt="LinkedIn" />
+                </button>
+              </div>
             </div>
           </div>
-        </footer>
+
+          <div className="footer-bottom">
+            <p>&copy; 2025 BookSwap. All rights reserved. | Privacy Policy | Terms of Service</p>
+          </div>
+        </section>
       </div>
     </div>
   );

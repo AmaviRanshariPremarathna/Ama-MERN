@@ -13,7 +13,6 @@ import {
 // Backend CRUD API base URL
 const API_URL = "http://localhost:5000/products";
 
-
 const Product = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -302,7 +301,7 @@ const Product = () => {
         </div>
 
         {/* Animated Filter Panel */}
-          <div className={`filter-panel${showFilters ? ' show' : ''}`}>
+        <div className={`filter-panel${showFilters ? ' show' : ''}`}>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -361,7 +360,7 @@ const Product = () => {
 
         {filteredProducts.map((product, index) => (
           <div
-            key={product.id}
+            key={product._id || product.id}
             className="table-row"
             style={{ animationDelay: `${index * 0.1}s` }}
           >
@@ -431,7 +430,7 @@ const Product = () => {
                 </div>
                 <div
                   className="action-icon delete-icon"
-                  onClick={() => handleDelete(product.id)}
+                  onClick={() => handleDelete(product._id || product.id)}
                 >
                   <FaTrashAlt />
                 </div>
