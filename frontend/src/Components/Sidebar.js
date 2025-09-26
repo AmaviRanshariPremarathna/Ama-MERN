@@ -68,19 +68,19 @@ const Sidebar = ({ currentPage, setCurrentPage }) => {
         </li>
 
         <li 
-          className={`menu-item ${currentPage === 'report' ? 'active' : ''}`} 
-          onClick={() => setCurrentPage('report')}
-        >
-          <FaChartBar className="menu-icon" />
-          <span>Reports</span>
-        </li>
-
-        <li 
           className={`menu-item ${currentPage === 'suppliers' ? 'active' : ''}`} 
           onClick={() => setCurrentPage('suppliers')}
         >
           <FaUsers className="menu-icon" />
           <span>Suppliers</span>
+        </li>
+
+        <li 
+          className={`menu-item ${currentPage === 'report' ? 'active' : ''}`} 
+          onClick={() => setCurrentPage('report')}
+        >
+          <FaChartBar className="menu-icon" />
+          <span>Reports</span>
         </li>
 
         <li 
