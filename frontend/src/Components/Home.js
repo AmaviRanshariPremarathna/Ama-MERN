@@ -24,7 +24,7 @@ const Home = () => {
           <div className="nav-container">
             <div className="logo-section">
               <span className="logo-icon">📚</span>
-              <span className="logo-text">BookSwap</span>
+              <span className="logo-text">BookBridge</span>
             </div>
             <ul className="nav-links">
               <li><a href="#home">Home</a></li>
