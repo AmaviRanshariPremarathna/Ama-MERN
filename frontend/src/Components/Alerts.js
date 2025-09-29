@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./Alerts.css";
 
 const initialBooks = [
@@ -7,7 +7,7 @@ const initialBooks = [
     title: "Object Oriented Programming with C++", 
     author: "Balagurusamy", 
     category: "Programming", 
-    stock: 5, 
+    stock: 0, // OUT OF STOCK for testing
     threshold: 15, 
     price: 38.50, 
     supplier: "CodePress", 
@@ -35,11 +35,39 @@ const initialBooks = [
     title: "Calculus: Early Transcendentals", 
     author: "James Stewart", 
     category: "Mathematics", 
-    stock: 8, 
+    stock: 3, // CRITICAL for testing (threshold/3 = 20/3 = 6.67, so 3 < 6.67)
     threshold: 20, 
     price: 67.99, 
     supplier: "Math Publishers", 
     lastRestocked: "2024-02-28",
+    finePerDay: 20.00,
+    borrowedCopies: [],
+    maxBorrowDays: 14
+  },
+  { 
+    id: 4, 
+    title: "Database Management Systems", 
+    author: "Ramez Elmasri", 
+    category: "Computer Science", 
+    stock: 8, // LOW for testing (threshold = 15, so 8 <= 15)
+    threshold: 15, 
+    price: 45.00, 
+    supplier: "Tech Books Ltd", 
+    lastRestocked: "2024-03-05",
+    finePerDay: 20.00,
+    borrowedCopies: [],
+    maxBorrowDays: 14
+  },
+  { 
+    id: 5, 
+    title: "Introduction to Algorithms", 
+    author: "Thomas Cormen", 
+    category: "Computer Science", 
+    stock: 6, // VERY LOW for testing (threshold/2 = 12/2 = 6, so 6 <= 6)
+    threshold: 12, 
+    price: 89.95, 
+    supplier: "Algorithm Press", 
+    lastRestocked: "2024-02-20",
     finePerDay: 20.00,
     borrowedCopies: [],
     maxBorrowDays: 14
@@ -49,7 +77,6 @@ const initialBooks = [
 const Alerts = () => {
   const [books, setBooks] = useState(initialBooks);
   const [showModal, setShowModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [showFineModal, setShowFineModal] = useState(false);
@@ -69,12 +96,61 @@ const Alerts = () => {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [refreshInterval, setRefreshInterval] = useState(30);
   const [globalThreshold, setGlobalThreshold] = useState(10);
-  const [newBook, setNewBook] = useState({
-    title: "", author: "", category: "", stock: 0, threshold: 10, price: 0, supplier: ""
-  });
   const [editBook, setEditBook] = useState({});
 
-  // Auto-refresh functionality
+  // Helper functions (defined first to avoid temporal dead zone)
+  const getStatus = (stock, threshold) => {
+    if (stock === 0) return "out-of-stock";
+    if (stock <= threshold / 3) return "critical";
+    if (stock <= threshold / 2) return "very-low";
+    if (stock <= threshold) return "low";
+    return "safe";
+  };
+
+  const checkCriticalStock = useCallback(() => {
+    const outOfStockBooks = books.filter(book => getStatus(book.stock, book.threshold) === "out-of-stock");
+    const criticalBooks = books.filter(book => getStatus(book.stock, book.threshold) === "critical");
+    const veryLowBooks = books.filter(book => getStatus(book.stock, book.threshold) === "very-low");
+    
+    // Create array of alert objects for multiple notifications
+    const alerts = [];
+    
+    // Add out-of-stock alerts
+    outOfStockBooks.forEach(book => {
+      alerts.push({
+        id: `out-of-stock-${book.id}`,
+        type: 'out-of-stock',
+        message: `"${book.title}" by ${book.author} is currently OUT OF STOCK and requires immediate restocking.`,
+        book: book,
+        priority: 1
+      });
+    });
+    
+    // Add critical stock alerts
+    criticalBooks.forEach(book => {
+      alerts.push({
+        id: `critical-${book.id}`,
+        type: 'critical',
+        message: `"${book.title}" by ${book.author} has reached CRITICAL stock level (${book.stock} units remaining).`,
+        book: book,
+        priority: 2
+      });
+    });
+    
+    // Add very low stock alerts (limit to 3 to avoid overwhelming UI)
+    veryLowBooks.slice(0, 3).forEach(book => {
+      alerts.push({
+        id: `very-low-${book.id}`,
+        type: 'very-low',
+        message: `"${book.title}" by ${book.author} has very low stock (${book.stock} units remaining).`,
+        book: book,
+        priority: 3
+      });
+    });
+    
+    // Sort by priority and set alerts
+    setLowStockAlerts(alerts.sort((a, b) => a.priority - b.priority));
+  }, [books]);  // Auto-refresh functionality
   useEffect(() => {
     let interval;
     if (autoRefresh) {
@@ -85,7 +161,12 @@ const Alerts = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [books, autoRefresh, refreshInterval]);
+  }, [books, autoRefresh, refreshInterval, checkCriticalStock]);
+
+  // Check critical stock on component mount and when books change
+  useEffect(() => {
+    checkCriticalStock();
+  }, [checkCriticalStock]);
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -117,29 +198,10 @@ const Alerts = () => {
     localStorage.setItem('alertsBooks', JSON.stringify(books));
   }, [books]);
 
-  const checkCriticalStock = () => {
-    const criticalBooks = books.filter(book => getStatus(book.stock, book.threshold) === "critical");
-    const outOfStockBooks = books.filter(book => getStatus(book.stock, book.threshold) === "out-of-stock");
-    
-    if (outOfStockBooks.length > 0) {
-      setNotification(`🚨 ${outOfStockBooks.length} book(s) are out of stock!`);
-      setTimeout(() => setNotification(""), 5000);
-    } else if (criticalBooks.length > 0) {
-      setNotification(`⚠️ ${criticalBooks.length} book(s) are in critical stock level!`);
-      setTimeout(() => setNotification(""), 5000);
-    }
-  };
-
-  const getStatus = (stock, threshold) => {
-    if (stock === 0) return "out-of-stock";
-    if (stock <= threshold / 3) return "critical";
-    if (stock <= threshold / 2) return "very-low";
-    if (stock <= threshold) return "low";
-    return "safe";
-  };
-
   // Notification logic
   const [lowStockNotification, setLowStockNotification] = useState("");
+  const [lowStockAlerts, setLowStockAlerts] = useState([]);
+  
   const showNotification = (message, type = "success") => {
     if (type === "low-stock") {
       setLowStockNotification(message);
@@ -148,6 +210,10 @@ const Alerts = () => {
       setNotification(message);
       setTimeout(() => setNotification(""), 5000);
     }
+  };
+  
+  const dismissAlert = (alertId) => {
+    setLowStockAlerts(prev => prev.filter(alert => alert.id !== alertId));
   };
 
   const openRestockModal = (book) => {
@@ -227,46 +293,6 @@ const Alerts = () => {
     showNotification(`🔄 Bulk restocked ${lowStockBooks.length} books with ${amount} units each!`);
   };
 
-  const handleAddBook = (e) => {
-    e.preventDefault();
-    
-    // Validation
-    if (!newBook.title.trim() || !newBook.author.trim() || !newBook.category.trim()) {
-      showNotification("⚠️ Please fill in all required fields!", "warning");
-      return;
-    }
-
-    const stock = parseInt(newBook.stock);
-    const threshold = parseInt(newBook.threshold);
-    const price = parseFloat(newBook.price);
-
-    if (stock < 0 || threshold <= 0 || price < 0) {
-      showNotification("⚠️ Please enter valid numbers for stock, threshold, and price!", "warning");
-      return;
-    }
-
-    const bookToAdd = {
-      ...newBook,
-      id: Math.max(...books.map(b => b.id), 0) + 1,
-      title: newBook.title.trim(),
-      author: newBook.author.trim(),
-      category: newBook.category.trim(),
-      supplier: newBook.supplier.trim(),
-      stock,
-      threshold,
-      price,
-      lastRestocked: new Date().toISOString().split('T')[0],
-      finePerDay: 20.00,
-      borrowedCopies: [],
-      maxBorrowDays: 14
-    };
-    
-    setBooks([...books, bookToAdd]);
-    setNewBook({ title: "", author: "", category: "", stock: 0, threshold: globalThreshold, price: 0, supplier: "" });
-    setShowAddModal(false);
-    showNotification(`📚 "${bookToAdd.title}" added successfully!`);
-  };
-
   const handleEditBook = (e) => {
     e.preventDefault();
     
@@ -319,30 +345,6 @@ const Alerts = () => {
     setSortBy("title");
     setSortOrder("asc");
     setSearchField("title");
-  };
-
-  const importData = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedData = JSON.parse(e.target.result);
-        if (importedData.books && Array.isArray(importedData.books)) {
-          if (window.confirm("Are you sure you want to import this data?\n\nThis will replace all current books.")) {
-            setBooks(importedData.books);
-            showNotification("📥 Data imported successfully!");
-          }
-        } else {
-          showNotification("⚠️ Invalid file format!", "warning");
-        }
-      } catch (error) {
-        showNotification("❌ Error importing data. Please check file format.", "warning");
-      }
-    };
-    reader.readAsText(file);
-    event.target.value = ''; // Reset file input
   };
 
   // Enhanced filtering and sorting
@@ -436,19 +438,17 @@ const Alerts = () => {
   // Calculates fine for late submission
   const calculateFine = (borrowDate, dueDate, returnDate, finePerDay = 20) => {
     // Dates as YYYY-MM-DD
-    const borrow = new Date(borrowDate);
     const due = new Date(dueDate);
     const returned = new Date(returnDate);
-    // Book can be kept for max 14 days
-    const maxDays = 14;
-    const actualDays = Math.ceil((returned - borrow) / (1000 * 60 * 60 * 24));
-    const lateDays = actualDays - maxDays;
+    // Calculate days overdue based on actual due date
+    const lateDays = Math.max(0, Math.ceil((returned - due) / (1000 * 60 * 60 * 24)));
     if (lateDays > 0) {
       return lateDays * finePerDay;
     }
     return 0;
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleBorrowBook = (bookId, borrower) => {
     setBooks(prevBooks => prevBooks.map(book => {
       if (book.id === bookId) {
@@ -469,6 +469,7 @@ const Alerts = () => {
     showNotification(`Book borrowed by ${borrower.name}`);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleReturnBook = (bookId, borrowerId) => {
     const book = books.find(b => b.id === bookId);
     const borrowedCopy = book.borrowedCopies.find(copy => 
@@ -519,90 +520,6 @@ const Alerts = () => {
     setFineAmount(0);
   };
 
-  const downloadReport = () => {
-    const reportData = processedBooks.map(book => ({
-      title: book.title,
-      author: book.author,
-      category: book.category,
-      stock: book.stock,
-      threshold: book.threshold,
-      status: getStatus(book.stock, book.threshold),
-      value: `$${(book.stock * book.price).toFixed(2)}`,
-      unitPrice: `$${book.price}`,
-      supplier: book.supplier,
-      lastRestocked: book.lastRestocked
-    }));
-
-    let reportText = "COMPREHENSIVE INVENTORY REPORT\n";
-    reportText += "=".repeat(80) + "\n\n";
-    reportText += `Generated on: ${new Date().toLocaleString()}\n`;
-    reportText += `Report covers: ${reportData.length} books\n\n`;
-    
-    reportText += "EXECUTIVE SUMMARY:\n";
-    reportText += "-".repeat(40) + "\n";
-    reportText += `Total Books in Inventory: ${books.length}\n`;
-    reportText += `Total Stock Units: ${getTotalStock()}\n`;
-    reportText += `Total Inventory Value: $${getTotalValue()}\n`;
-    reportText += `Average Price per Book: $${getAveragePrice()}\n`;
-    reportText += `Out of Stock Items: ${getOutOfStockCount()}\n`;
-    reportText += `Critical Stock Items: ${getCriticalCount()}\n`;
-    reportText += `Low Stock Items: ${getLowStockCount()}\n\n`;
-    
-    reportText += "STATUS BREAKDOWN:\n";
-    reportText += "-".repeat(40) + "\n";
-    const statusCounts = {};
-    reportData.forEach(book => {
-      statusCounts[book.status] = (statusCounts[book.status] || 0) + 1;
-    });
-    Object.entries(statusCounts).forEach(([status, count]) => {
-      reportText += `${status.toUpperCase().replace("-", " ")}: ${count} books\n`;
-    });
-    reportText += "\n";
-    
-    reportText += "CATEGORY ANALYSIS:\n";
-    reportText += "-".repeat(40) + "\n";
-    const categoryStats = {};
-    books.forEach(book => {
-      if (!categoryStats[book.category]) {
-        categoryStats[book.category] = { count: 0, value: 0 };
-      }
-      categoryStats[book.category].count++;
-      categoryStats[book.category].value += book.stock * book.price;
-    });
-    Object.entries(categoryStats).forEach(([category, stats]) => {
-      reportText += `${category}: ${stats.count} books, $${stats.value.toFixed(2)} value\n`;
-    });
-    reportText += "\n";
-    
-    reportText += "DETAILED INVENTORY:\n";
-    reportText += "-".repeat(80) + "\n";
-    
-    reportData.forEach((book, index) => {
-      reportText += `${index + 1}. ${book.title}\n`;
-      reportText += `   Author: ${book.author}\n`;
-      reportText += `   Category: ${book.category}\n`;
-      reportText += `   Stock: ${book.stock}/${book.threshold} units\n`;
-      reportText += `   Status: ${book.status.toUpperCase().replace("-", " ")}\n`;
-      reportText += `   Unit Price: ${book.unitPrice}\n`;
-      reportText += `   Total Value: ${book.value}\n`;
-      reportText += `   Supplier: ${book.supplier}\n`;
-      reportText += `   Last Restocked: ${new Date(book.lastRestocked).toLocaleDateString()}\n`;
-      reportText += `   Days Since Restock: ${Math.floor((new Date() - new Date(book.lastRestocked)) / (1000 * 60 * 60 * 24))}\n\n`;
-    });
-
-    const blob = new Blob([reportText], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `comprehensive_inventory_report_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    showNotification("📄 Comprehensive report exported successfully!");
-  };
-
   return (
     <div className="alerts-page">
       {/* Main notification */}
@@ -611,18 +528,93 @@ const Alerts = () => {
           {notification}
         </div>
       )}
-      {/* Low stock notification area */}
-      {lowStockNotification && (
-        <div className="low-stock-notification">
-          <span role="img" aria-label="warning">⚠️</span> {lowStockNotification}
+      {/* Enhanced Low stock notification area */}
+      {/* Multiple Alerts Display */}
+      {lowStockAlerts.length > 0 && (
+        <div className="alerts-list">
+          {lowStockAlerts.map((alert) => (
+            <div 
+              key={alert.id} 
+              className={`low-stock-notification ${alert.type}`}
+            >
+              <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                <span role="img" aria-label="warning">
+                  {alert.type === "out-of-stock" ? "🚨" : 
+                   alert.type === "critical" ? "⚠️" : 
+                   alert.type === "very-low" ? "📉" : "ℹ️"}
+                </span> 
+                <span>
+                  {alert.message}
+                </span>
+              </div>
+              
+              <div className="alert-actions">
+                <button 
+                  className="alert-action-btn"
+                  onClick={() => openRestockModal(alert.book)}
+                  title="Restock this item"
+                >
+                  Restock Now
+                </button>
+                <button 
+                  className="dismiss-btn"
+                  onClick={() => dismissAlert(alert.id)}
+                  title="Dismiss alert"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Legacy single notification (keeping for backward compatibility) */}
+      {lowStockNotification && lowStockAlerts.length === 0 && (
+        <div className={`low-stock-notification ${
+          lowStockNotification.includes("OUT OF STOCK") ? "out-of-stock" : 
+          lowStockNotification.includes("CRITICAL") ? "critical" : ""
+        }`}>
+          <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+            <span role="img" aria-label="warning">
+              {lowStockNotification.includes("OUT OF STOCK") ? "🚨" : 
+               lowStockNotification.includes("CRITICAL") ? "⚠️" : "ℹ️"}
+            </span> 
+            <span>
+              {lowStockNotification}
+            </span>
+          </div>
+          
+          <div className="alert-actions">
+            <button 
+              className="alert-action-btn"
+              onClick={() => {
+                const bookTitle = lowStockNotification.match(/"([^"]+)"/)?.[1];
+                const targetBook = books.find(book => book.title === bookTitle);
+                if (targetBook) {
+                  openRestockModal(targetBook);
+                }
+              }}
+              title="Restock this item"
+            >
+              Restock Now
+            </button>
+            <button 
+              className="dismiss-btn"
+              onClick={() => setLowStockNotification("")}
+              title="Dismiss alert"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       )}
 
       <div className="alerts-container">
         {/* Header with Stats */}
         <header className="alerts-header">
-          <h1>📚 Advanced Alerts Management System</h1>
-          <p>Comprehensive inventory monitoring, alerts, and automated management</p>
+          <h1>Inventory Alert Management</h1>
+          <p>Monitor stock levels, manage inventory alerts, and track restocking activities</p>
           
           <div className="stats-container">
             <div className="stat-card critical">
@@ -631,23 +623,23 @@ const Alerts = () => {
             </div>
             <div className="stat-card critical">
               <div className="stat-number">{getCriticalCount()}</div>
-              <div className="stat-label">Critical Items</div>
+              <div className="stat-label">Critical Level</div>
             </div>
             <div className="stat-card warning">
               <div className="stat-number">{getLowStockCount()}</div>
-              <div className="stat-label">Low Stock Items</div>
+              <div className="stat-label">Low Stock</div>
             </div>
             <div className="stat-card info">
               <div className="stat-number">{books.length}</div>
-              <div className="stat-label">Total Books</div>
+              <div className="stat-label">Total Items</div>
             </div>
             <div className="stat-card success">
               <div className="stat-number">${getTotalValue()}</div>
-              <div className="stat-label">Inventory Value</div>
+              <div className="stat-label">Total Value</div>
             </div>
             <div className="stat-card info">
               <div className="stat-number">{getTotalStock()}</div>
-              <div className="stat-label">Total Units</div>
+              <div className="stat-label">Units in Stock</div>
             </div>
           </div>
         </header>
@@ -689,7 +681,7 @@ const Alerts = () => {
             </select>
 
             <button className="btn btn-outline" onClick={clearAllFilters}>
-              🔄 Clear Filters
+              Clear Filters
             </button>
           </div>
 
@@ -716,16 +708,8 @@ const Alerts = () => {
               {sortOrder === "asc" ? "↑" : "↓"}
             </button>
 
-            <button className="btn btn-success" onClick={() => setShowAddModal(true)}>
-              ➕ Add Book
-            </button>
-
             <button className="btn btn-primary" onClick={openBulkRestockModal}>
-              🔄 Bulk Restock
-            </button>
-
-            <button className="btn btn-info" onClick={downloadReport}>
-              📄 Export Report
+              Bulk Restock
             </button>
           </div>
         </div>
@@ -809,24 +793,27 @@ const Alerts = () => {
                           <button
                             className="btn btn-sm btn-primary"
                             onClick={() => openRestockModal(book)}
-                            title="Restock"
+                            title="Restock this item"
                           >
-                            ⚡
+                            <span className="btn-icon">⚡</span>
+                            <span className="btn-text">Restock</span>
                           </button>
                         )}
                         <button
                           className="btn btn-sm btn-secondary"
                           onClick={() => openEditModal(book)}
-                          title="Edit"
+                          title="Edit book details"
                         >
-                          ✏️
+                          <span className="btn-icon">✏️</span>
+                          <span className="btn-text">Edit</span>
                         </button>
                         <button
                           className="btn btn-sm btn-danger"
                           onClick={() => deleteBook(book.id)}
-                          title="Delete"
+                          title="Delete this book"
                         >
-                          🗑️
+                          <span className="btn-icon">🗑️</span>
+                          <span className="btn-text">Delete</span>
                         </button>
                       </div>
                     </td>
@@ -971,114 +958,6 @@ const Alerts = () => {
               <div className="modal-buttons">
                 <button type="submit" className="btn btn-success">Confirm Bulk Restock</button>
                 <button type="button" className="btn btn-secondary" onClick={() => setShowBulkModal(false)}>
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Add Book Modal */}
-      {showAddModal && (
-        <div className="modal-overlay">
-          <div className="modal modal-large">
-            <div className="modal-header">
-              <h2>Add New Book</h2>
-              <button className="close-btn" onClick={() => setShowAddModal(false)}>×</button>
-            </div>
-            <form onSubmit={handleAddBook}>
-              <div className="form-grid">
-                <div className="form-group">
-                  <label>Title: *</label>
-                  <input
-                    type="text"
-                    value={newBook.title}
-                    onChange={(e) => setNewBook({...newBook, title: e.target.value})}
-                    placeholder="Enter book title"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Author: *</label>
-                  <input
-                    type="text"
-                    value={newBook.author}
-                    onChange={(e) => setNewBook({...newBook, author: e.target.value})}
-                    placeholder="Enter author name"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Category: *</label>
-                  <input
-                    type="text"
-                    value={newBook.category}
-                    onChange={(e) => setNewBook({...newBook, category: e.target.value})}
-                    placeholder="e.g., Computer Science, Business"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Current Stock:</label>
-                  <input
-                    type="number"
-                    value={newBook.stock}
-                    onChange={(e) => setNewBook({...newBook, stock: e.target.value})}
-                    min="0"
-                    max="9999"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Threshold:</label>
-                  <input
-                    type="number"
-                    value={newBook.threshold}
-                    onChange={(e) => setNewBook({...newBook, threshold: e.target.value})}
-                    min="1"
-                    max="999"
-                    required
-                  />
-                  <small>Alert when stock falls below this number</small>
-                </div>
-                <div className="form-group">
-                  <label>Price ($):</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={newBook.price}
-                    onChange={(e) => setNewBook({...newBook, price: e.target.value})}
-                    min="0"
-                    max="9999.99"
-                    required
-                  />
-                </div>
-                <div className="form-group form-group-full">
-                  <label>Supplier: *</label>
-                  <input
-                    type="text"
-                    value={newBook.supplier}
-                    onChange={(e) => setNewBook({...newBook, supplier: e.target.value})}
-                    placeholder="Enter supplier name"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-preview">
-                <h4>Preview:</h4>
-                <p><strong>Status will be:</strong> 
-                  <span className={`status-badge status-${getStatus(parseInt(newBook.stock || 0), parseInt(newBook.threshold || 10))}`}>
-                    {getStatus(parseInt(newBook.stock || 0), parseInt(newBook.threshold || 10)).replace("-", " ").toUpperCase()}
-                  </span>
-                </p>
-                <p><strong>Total Value:</strong> ${((newBook.stock || 0) * (newBook.price || 0)).toFixed(2)}</p>
-              </div>
-
-              <div className="modal-buttons">
-                <button type="submit" className="btn btn-success">Add Book</button>
-                <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>
                   Cancel
                 </button>
               </div>

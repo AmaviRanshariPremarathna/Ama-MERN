@@ -9,8 +9,10 @@
   top: 0;
   left: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   transition: width 0.3s ease;
   z-index: 10;
+  box-sizing: border-box;
 }
 
 .sidebar-title {

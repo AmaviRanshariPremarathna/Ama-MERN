@@ -13,7 +13,23 @@ const Home = () => {
       }
     };
     anchors.forEach((a) => a.addEventListener("click", handleClick));
-    return () => anchors.forEach((a) => a.removeEventListener("click", handleClick));
+
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('navbar-scrolled');
+      } else {
+        navbar.classList.remove('navbar-scrolled');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      anchors.forEach((a) => a.removeEventListener("click", handleClick));
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   return (

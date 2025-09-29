@@ -1,25 +1,51 @@
 /* Shift content to the right to avoid overlapping with sidebar */
 .borrow-return-premium {
   max-width: 1200px;
-  margin-left: 200px; /* Match sidebar width */
+  margin-left: 180px; /* Match sidebar width */
   padding: 30px;
   font-family: "Segoe UI", sans-serif;
   color: #2c3e50;
   background: linear-gradient(135deg, #3a8cdf, #d6eaf8);
   min-height: 100vh;
   transition: margin-left 0.3s ease;
+  width: calc(100% - 180px);
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1024px) {
   .borrow-return-premium {
-    margin-left: 100px; /* Adjust for smaller screens / collapsed sidebar */
+    margin-left: 80px; /* Adjust for smaller screens / collapsed sidebar */
+    width: calc(100% - 80px);
   }
 }
 
-h1 {
+/* Header Section */
+.header-section {
   text-align: center;
   margin-bottom: 30px;
+}
+
+.header-section h1 {
   color: #f3f5f8;
+  margin-bottom: 15px;
+}
+
+.real-time-clock {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border-radius: 25px;
+  color: #2c3e50;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  animation: pulse-clock 2s infinite;
+}
+
+@keyframes pulse-clock {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
 }
 
 /* Dashboard */
@@ -62,21 +88,48 @@ h1 {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .tab {
-  padding: 12px 35px;
-  margin: 0 10px;
+  padding: 12px 20px;
+  margin: 0 5px;
   border: none;
   border-radius: 10px 10px 0 0;
   background: #ecf0f1;
   font-weight: bold;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-.tab.active { background: #3498db; color: white; }
-.tab:hover { background: #bdc3c7; }
+.tab.active { 
+  background: #3498db; 
+  color: white; 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+}
+
+.tab:hover:not(.active) { 
+  background: #bdc3c7; 
+  transform: translateY(-1px);
+}
+
+/* Special styling for overdue tab */
+.tab:nth-child(3) {
+  position: relative;
+}
+
+.tab:nth-child(3).active {
+  background: #e74c3c;
+  animation: urgent-pulse 1.5s infinite;
+}
+
+@keyframes urgent-pulse {
+  0%, 100% { box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3); }
+  50% { box-shadow: 0 4px 15px rgba(231, 76, 60, 0.6); }
+}
 
 /* Search */
 .search-bar { text-align: center; margin-bottom: 25px; }
@@ -137,7 +190,53 @@ h1 {
 
 .badge.available { background: #2ecc71; color: white; }
 .badge.borrowed { background: #2980b9; color: white; }
-.badge.overdue { background: #e74c3c; color: white; box-shadow: 0 0 10px #e74c3c; }
+.badge.overdue { 
+  background: #e74c3c; 
+  color: white; 
+  box-shadow: 0 0 10px #e74c3c; 
+  animation: danger-blink 2s infinite;
+}
+
+@keyframes danger-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Enhanced status indicators */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 8px 0;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status-indicator.due-today {
+  background: rgba(243, 156, 18, 0.2);
+  color: #f39c12;
+  border: 1px solid #f39c12;
+}
+
+.status-indicator.remaining {
+  background: rgba(39, 174, 96, 0.2);
+  color: #27ae60;
+  border: 1px solid #27ae60;
+}
+
+.status-indicator.overdue {
+  background: rgba(231, 76, 60, 0.2);
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  animation: urgent-flash 1s infinite alternate;
+}
+
+@keyframes urgent-flash {
+  0% { background: rgba(231, 76, 60, 0.2); }
+  100% { background: rgba(231, 76, 60, 0.4); }
+}
 
 .available-card { border-top: 4px solid #27ae60; }
 .borrowed-card { border-top: 4px solid #2980b9; }
@@ -167,4 +266,67 @@ h1 {
 .borrow-btn { background: #2ecc71; color: white; }
 .return-btn { background: #e74c3c; color: white; }
 
-.no-books { grid-column: 1/-1; text-align: center; color: #7f8c8d; font-weight: bold; margin-top: 20px; }
+/* Enhanced No Books Message */
+.no-books { 
+  grid-column: 1/-1; 
+  text-align: center; 
+  color: #7f8c8d; 
+  font-weight: bold; 
+  margin-top: 40px; 
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.no-books p {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+/* Real-time updates indicator */
+.live-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #27ae60;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 12px;
+  z-index: 1000;
+  animation: live-pulse 2s infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .borrow-return-premium {
+    margin-left: 0;
+    padding: 15px;
+  }
+  
+  .tabs {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .tab {
+    width: 200px;
+    margin: 5px 0;
+  }
+  
+  .dashboard {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .real-time-clock {
+    font-size: 14px;
+    padding: 8px 15px;
+  }
+}

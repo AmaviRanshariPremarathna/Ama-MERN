@@ -36,17 +36,18 @@
   box-sizing: border-box;
 }
 
+/* Category.css */
 .category-container {
-  padding: 1.5rem; 
-  margin-left: 180px;
+  max-width: 1200px;
+  margin: 0 auto;
+  margin-left: 180px; /* Match sidebar width */
+  padding: 20px;
+  background-color: #ffffff;
+  font-family: Arial, sans-serif;
+  color: #333333;
   width: calc(100% - 180px);
-  max-width: 100%;
   overflow-x: hidden;
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  box-sizing: border-box;
 }
 
 .category-container::before {

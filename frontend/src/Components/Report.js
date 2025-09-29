@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import html2pdf from "html2pdf.js";
 import "./Report.css";
 
 const Report = () => {
@@ -119,24 +118,35 @@ const Report = () => {
     setTimeout(() => setNotification(""), 5000);
   };
 
-  const downloadPdf = () => {
-    if (!reportRef.current) return;
-
-    const opt = {
-      margin: 0.5,
-      filename: `inventory_report_${reportPeriod}_${new Date().toISOString().split('T')[0]}.pdf`,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(reportRef.current).save();
-    showNotification("📄 Report exported as PDF successfully!");
-  };
-
   const printReport = () => {
+    // Add a temporary class to body to hide sidebar during print
+    document.body.classList.add('printing-report');
+    
+    // Add custom print styles
+    const printStyle = document.createElement('style');
+    printStyle.textContent = `
+      @media print {
+        .sidebar, .navigation, .nav-menu, .side-menu, [class*="sidebar"], [class*="nav-"] {
+          display: none !important;
+        }
+        .report-page {
+          margin: 0 !important;
+          margin-left: 0 !important;
+          width: 100% !important;
+        }
+      }
+    `;
+    document.head.appendChild(printStyle);
+    
     window.print();
-    showNotification("🖨️ Print dialog opened!");
+    
+    // Clean up after print dialog
+    setTimeout(() => {
+      document.body.classList.remove('printing-report');
+      document.head.removeChild(printStyle);
+    }, 1000);
+    
+    showNotification("🖨️ Print dialog opened! You can save as PDF from the print options.");
   };
 
   const getReportTitle = () => {
@@ -191,11 +201,8 @@ const Report = () => {
               </div>
             </div>
             <div className="action-buttons">
-              <button className="btn btn-secondary print-btn" onClick={printReport}>
-                🖨️ Print Report
-              </button>
-              <button className="btn btn-primary download-btn" onClick={downloadPdf}>
-                📥 Export PDF
+              <button className="btn btn-primary print-btn" onClick={printReport}>
+                🖨️ Print / Save as PDF
               </button>
             </div>
           </div>
@@ -203,7 +210,7 @@ const Report = () => {
 
         <div className="report-content" ref={reportRef}>
           {/* Executive Summary */}
-          <section className="summary-section">
+          <section className="summary-section page-break-avoid">
             <h2>📈 Executive Summary</h2>
             <div className="stats-grid">
               <div className="stat-card primary">
@@ -250,7 +257,7 @@ const Report = () => {
           </section>
 
           {/* Stock Overview */}
-          <section className="stock-overview">
+          <section className="stock-overview page-break-avoid">
             <h2>📋 Stock Overview</h2>
             <div className="category-analysis">
               <h3>Category-wise Summary</h3>
@@ -263,7 +270,7 @@ const Report = () => {
                   if (getStatus(book.stock, book.threshold) !== "safe") acc[book.category].lowStock++;
                   return acc;
                 }, {})).map(([category, stats]) => (
-                  <div key={category} className="category-card">
+                  <div key={category} className="category-card page-break-avoid">
                     <div className="category-header">
                       <h3>{category}</h3>
                       {stats.lowStock > 0 && <span className="alert-badge">{stats.lowStock} alerts</span>}
@@ -280,38 +287,38 @@ const Report = () => {
           </section>
 
           {/* Transaction Summary */}
-          <section className="transaction-summary">
+          <section className="transaction-summary page-break-avoid">
             <h2>🔄 Transaction Summary</h2>
             <div className="transaction-stats">
-              <div className="transaction-card added">
+              <div className="transaction-card added page-break-avoid">
                 <div className="transaction-icon">➕</div>
                 <div className="transaction-data">
                   <div className="transaction-number">{getTransactionsByType("added")}</div>
                   <div className="transaction-label">Books Added</div>
                 </div>
               </div>
-              <div className="transaction-card borrowed">
+              <div className="transaction-card borrowed page-break-avoid">
                 <div className="transaction-icon">📖</div>
                 <div className="transaction-data">
                   <div className="transaction-number">{getTransactionsByType("borrowed")}</div>
                   <div className="transaction-label">Books Borrowed</div>
                 </div>
               </div>
-              <div className="transaction-card returned">
+              <div className="transaction-card returned page-break-avoid">
                 <div className="transaction-icon">↩️</div>
                 <div className="transaction-data">
                   <div className="transaction-number">{getTransactionsByType("returned")}</div>
                   <div className="transaction-label">Books Returned</div>
                 </div>
               </div>
-              <div className="transaction-card exchanged">
+              <div className="transaction-card exchanged page-break-avoid">
                 <div className="transaction-icon">🔄</div>
                 <div className="transaction-data">
                   <div className="transaction-number">{getTransactionsByType("exchanged")}</div>
                   <div className="transaction-label">Books Exchanged</div>
                 </div>
               </div>
-              <div className="transaction-card removed">
+              <div className="transaction-card removed page-break-avoid">
                 <div className="transaction-icon">🗑️</div>
                 <div className="transaction-data">
                   <div className="transaction-number">{getTransactionsByType("removed")}</div>
@@ -354,11 +361,11 @@ const Report = () => {
           </section>
 
           {/* Performance Insights */}
-          <section className="performance-insights">
+          <section className="performance-insights page-break-avoid">
             <h2>🎯 Performance Insights</h2>
             
             <div className="insights-grid">
-              <div className="insight-card">
+              <div className="insight-card page-break-avoid">
                 <h3>📈 Most Popular Books</h3>
                 <div className="insight-list">
                   {getPopularBooks().map((book, index) => (
@@ -374,7 +381,7 @@ const Report = () => {
                 </div>
               </div>
 
-              <div className="insight-card">
+              <div className="insight-card page-break-avoid">
                 <h3>📉 Least Used Books</h3>
                 <div className="insight-list">
                   {getLeastUsedBooks().map((book, index) => (
@@ -390,7 +397,7 @@ const Report = () => {
                 </div>
               </div>
 
-              <div className="insight-card">
+              <div className="insight-card page-break-avoid">
                 <h3>👥 Top Contributors</h3>
                 <div className="insight-list">
                   {getTopUsers().map((user, index) => (
@@ -411,11 +418,11 @@ const Report = () => {
           </section>
 
           {/* Alerts & Notifications */}
-          <section className="alerts-section">
+          <section className="alerts-section page-break-avoid">
             <h2>🚨 Alerts & Notifications</h2>
             
             <div className="alerts-grid">
-              <div className="alert-panel critical">
+              <div className="alert-panel critical page-break-avoid">
                 <h3>🔴 Critical Alerts</h3>
                 <div className="alert-list">
                   {books.filter(book => getStatus(book.stock, book.threshold) === "out-of-stock" || getStatus(book.stock, book.threshold) === "critical").map(book => (
@@ -432,7 +439,7 @@ const Report = () => {
                 </div>
               </div>
 
-              <div className="alert-panel warning">
+              <div className="alert-panel warning page-break-avoid">
                 <h3>🟡 Low Stock Warnings</h3>
                 <div className="alert-list">
                   {books.filter(book => getStatus(book.stock, book.threshold) === "low" || getStatus(book.stock, book.threshold) === "very-low").map(book => (
@@ -447,7 +454,7 @@ const Report = () => {
                 </div>
               </div>
 
-              <div className="alert-panel info">
+              <div className="alert-panel info page-break-avoid">
                 <h3>📋 Overdue Items</h3>
                 <div className="alert-list">
                   {users.filter(user => user.fines > 0).map(user => (

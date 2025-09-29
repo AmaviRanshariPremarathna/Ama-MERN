@@ -10,6 +10,7 @@ import BookDescription from './Components/BookDescription';
 import Supplier from './Components/Supplier';
 import Profile from './Components/Profile'; // ✅ Import Profile
 import BorrowReturn from './Components/BorrowReturn';
+import { DashboardProvider } from './contexts/DashboardContext';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home'); // Default page is Home
@@ -59,12 +60,14 @@ function App() {
   };
 
   return (
-    <div className="app-container" style={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      <main style={{ flex: 1, padding: '20px' }}>
-        {renderPage()}
-      </main>
-    </div>
+    <DashboardProvider>
+      <div className="app-container" style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <main style={{ flex: 1, padding: '20px' }}>
+          {renderPage()}
+        </main>
+      </div>
+    </DashboardProvider>
   );
 }
 

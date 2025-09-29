@@ -6,7 +6,6 @@ import {
   FaFilter,
   FaEdit,
   FaTrashAlt,
-  FaEllipsisH,
   FaTruck,
 } from "react-icons/fa";
 
@@ -117,66 +116,84 @@ export default function Supplier() {
             <div className="modal-backdrop" onClick={handleFormCancel} />
             <div className="modal-content">
               <div className="modal-header">
-                <h2 className="modal-title gradient-text">Add New Supplier</h2>
+                <h2 className="modal-title gradient-text">{isEditing ? "Edit Supplier" : "Add New Supplier"}</h2>
               </div>
               <form className="supplier-form" onSubmit={handleFormSubmit}>
                 <div className="form-grid">
-                  <input
-                    name="name"
-                    placeholder="Supplier Name"
-                    value={newSupplier.name}
-                    onChange={handleFormChange}
-                    className="form-input"
-                    required
-                  />
-                  <input
-                    name="contact"
-                    placeholder="Contact Person"
-                    value={newSupplier.contact}
-                    onChange={handleFormChange}
-                    className="form-input"
-                    required
-                  />
-                  <input
-                    name="email"
-                    type="email"
-                    placeholder="Email"
-                    value={newSupplier.email}
-                    onChange={handleFormChange}
-                    className="form-input"
-                    required
-                  />
-                  <input
-                    name="phone"
-                    placeholder="Phone"
-                    value={newSupplier.phone}
-                    onChange={handleFormChange}
-                    className="form-input"
-                    required
-                  />
-                  <input
-                    name="address"
-                    placeholder="Address"
-                    value={newSupplier.address}
-                    onChange={handleFormChange}
-                    className="form-input"
-                    required
-                  />
-                  <input
-                    name="books"
-                    placeholder="Books Supplied (comma separated)"
-                    value={newSupplier.books}
-                    onChange={handleFormChange}
-                    className="form-input"
-                    required
-                  />
+                  <div className="form-field">
+                    <label htmlFor="name" className="form-label">Supplier Name *</label>
+                    <input
+                      id="name"
+                      name="name"
+                      value={newSupplier.name}
+                      onChange={handleFormChange}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="contact" className="form-label">Contact Person *</label>
+                    <input
+                      id="contact"
+                      name="contact"
+                      value={newSupplier.contact}
+                      onChange={handleFormChange}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="email" className="form-label">Email *</label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={newSupplier.email}
+                      onChange={handleFormChange}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="phone" className="form-label">Phone *</label>
+                    <input
+                      id="phone"
+                      name="phone"
+                      value={newSupplier.phone}
+                      onChange={handleFormChange}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="address" className="form-label">Address *</label>
+                    <input
+                      id="address"
+                      name="address"
+                      value={newSupplier.address}
+                      onChange={handleFormChange}
+                      className="form-input"
+                      required
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="books" className="form-label">Books Supplied *</label>
+                    <input
+                      id="books"
+                      name="books"
+                      value={newSupplier.books}
+                      onChange={handleFormChange}
+                      className="form-input"
+                      required
+                    />
+                  </div>
                 </div>
                 <div className="form-actions">
                   <button type="button" className="cancel-button" onClick={handleFormCancel}>
                     Cancel
                   </button>
                   <button type="submit" className="submit-button">
-                    Add Supplier
+                    {isEditing ? "Save Changes" : "Add Supplier"}
                   </button>
                 </div>
               </form>
@@ -204,6 +221,7 @@ export default function Supplier() {
                   type="text"
                   className="search-input"
                   placeholder="Search suppliers..."
+                  aria-label="Search suppliers"
                 />
               </div>
               <div className="action-buttons">
@@ -264,7 +282,7 @@ export default function Supplier() {
                   <button className="action-icon edit-icon" onClick={() => handleEdit(supplier)}>
                     <FaEdit />
                   </button>
-                  <button className="action-icon delete-icon" onClick={() => handleDelete(supplier.id)}>
+                  <button className="action-icon delete-icon" onClick={() => handleDelete(supplier._id)}>
                     <FaTrashAlt />
                   </button>
                 </div>
