@@ -1,0 +1,28 @@
+/* App-wide container styles */
+#root {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ensure all main components handle overflow properly */
+.app-container {
+  display: flex;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Make sure all page containers respect their boundaries */
+.page-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Common table styles for horizontal scrolling within containers */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

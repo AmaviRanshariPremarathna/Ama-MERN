@@ -4,63 +4,18 @@ import {
   FaBook,
   FaPencilAlt,
   FaTrashAlt,
-  FaEllipsisH,
   FaSort,
   FaPlus,
   FaSearch,
   FaFilter,
 } from "react-icons/fa";
 
-const initialProducts = [
-  {
-    id: 1,
-    icon: <FaBook />,
-    name: "Introduction to Algorithms",
-    code: "CS-001",
-    category: "Information Technology",
-    price: "1500.00",
-    stockCurrent: 142,
-    stockTotal: 200,
-    stockColor: "#3b82f6",
-    status: "IN STOCK",
-    statusColor: "#22c55e",
-    supplier: "MIT Press",
-    lastUpdated: "2 hours ago",
-  },
-  {
-    id: 2,
-    icon: <FaBook />,
-    name: "The Art of Solving Problems",
-    code: "CS-002",
-    category: "Computer Science",
-    price: "800.00",
-    stockCurrent: 8,
-    stockTotal: 50,
-    stockColor: "#f59e0b",
-    status: "LOW STOCK",
-    statusColor: "#f59e0b",
-    supplier: "Pearson",
-    lastUpdated: "4 hours ago",
-  },
-  {
-    id: 3,
-    icon: <FaBook />,
-    name: "Hacking",
-    code: "CS-003",
-    category: "Cyber Security",
-    price: "600.00",
-    stockCurrent: 0,
-    stockTotal: 100,
-    stockColor: "#6b7280",
-    status: "OUT OF STOCK",
-    statusColor: "#ef4444",
-    supplier: "McGraw-Hill",
-    lastUpdated: "1 day ago",
-  },
-];
+// Backend CRUD API base URL
+const API_URL = "http://localhost:5001/products";
+
 
 const Product = () => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedStatus, setSelectedStatus] = useState("All Status");
@@ -69,7 +24,6 @@ const Product = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editProductId, setEditProductId] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-
   const [newProduct, setNewProduct] = useState({
     name: "",
     code: "",
@@ -81,9 +35,80 @@ const Product = () => {
     supplier: "",
   });
 
-  const categories = ["All Categories", ...new Set(products.map((p) => p.category))];
-  const statuses = ["All Status", ...new Set(products.map((p) => p.status))];
-  const suppliers = ["All Suppliers", ...new Set(products.map((p) => p.supplier))];
+  // Fetch all products from backend
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        
+        const data = await response.json();
+        // Add icon and color fields for UI
+        setProducts(
+          data.map((p) => ({
+            ...p,
+            icon: <FaBook />,
+            stockColor:
+              p.stockCurrent / p.stockTotal > 0.5
+                ? "#3b82f6"
+                : p.stockCurrent > 0
+                ? "#f59e0b"
+                : "#6b7280",
+            statusColor:
+              p.status === "IN STOCK"
+                ? "#22c55e"
+                : p.status === "LOW STOCK"
+                ? "#f59e0b"
+                : "#ef4444",
+          }))
+        );
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        alert(`Error loading products: ${error.message}`);
+      }
+    };
+    
+    fetchProducts();
+  }, []);
+
+  // Default options for dropdowns
+  const defaultCategories = [
+    "Information Technology",
+    "Computer Science",
+    "Cyber Security",
+    "Mathematics",
+    "Engineering",
+    "Literature",
+    "Other"
+  ];
+  const defaultStatuses = [
+    "IN STOCK",
+    "LOW STOCK",
+    "OUT OF STOCK"
+  ];
+  const defaultSuppliers = [
+    "MIT Press",
+    "Pearson",
+    "McGraw-Hill",
+    "Oxford",
+    "Other"
+  ];
+
+  // Merge product values with defaults for dropdowns
+  const categories = [
+    "All Categories",
+    ...Array.from(new Set([...defaultCategories, ...products.map((p) => p.category).filter(Boolean)])),
+  ];
+  const statuses = [
+    "All Status",
+    ...Array.from(new Set([...defaultStatuses, ...products.map((p) => p.status).filter(Boolean)])),
+  ];
+  const suppliers = [
+    "All Suppliers",
+    ...Array.from(new Set([...defaultSuppliers, ...products.map((p) => p.supplier).filter(Boolean)])),
+  ];
 
   const filteredProducts = products.filter((p) => {
     const lowerSearch = searchTerm.toLowerCase();
@@ -121,66 +146,113 @@ const Product = () => {
     setNewProduct({ ...newProduct, [name]: value });
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const stockCurrent = parseInt(newProduct.stockCurrent);
-    const stockTotal = parseInt(newProduct.stockTotal);
-    const stockPercent = (stockCurrent / stockTotal) * 100;
-    let statusColor = "#22c55e";
-
-    let statusText = newProduct.status.toUpperCase();
-    if (statusText === "IN STOCK") statusColor = "#22c55e";
-    else if (statusText === "LOW STOCK") statusColor = "#f59e0b";
-    else if (statusText === "OUT OF STOCK") statusColor = "#ef4444";
-
-    if (isEditing) {
-      // Update product
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === editProductId
-            ? {
-                ...p,
-                ...newProduct,
-                stockCurrent,
-                stockTotal,
-                stockColor:
-                  stockPercent > 50 ? "#3b82f6" : stockPercent > 0 ? "#f59e0b" : "#6b7280",
-                status: statusText,
-                statusColor,
-                lastUpdated: "Just now",
-              }
-            : p
-        )
-      );
-    } else {
-      // Add product
-      const id = products.length + 1;
-      const productToAdd = {
-        id,
-        icon: <FaBook />,
-        ...newProduct,
-        stockCurrent,
-        stockTotal,
-        stockColor:
-          stockPercent > 50 ? "#3b82f6" : stockPercent > 0 ? "#f59e0b" : "#6b7280",
-        status: statusText,
-        statusColor,
-        lastUpdated: "Just now",
-      };
-      setProducts([...products, productToAdd]);
+    
+    // Form validation
+    if (!newProduct.name || !newProduct.code || !newProduct.category || 
+        !newProduct.price || !newProduct.stockCurrent || !newProduct.stockTotal || 
+        !newProduct.status || !newProduct.supplier) {
+      alert("All fields are required!");
+      return;
     }
 
-    setShowForm(false);
-    setNewProduct({
-      name: "",
-      code: "",
-      category: "",
-      price: "",
-      stockCurrent: "",
-      stockTotal: "",
-      status: "",
-      supplier: "",
-    });
+    const stockCurrent = parseInt(newProduct.stockCurrent);
+    const stockTotal = parseInt(newProduct.stockTotal);
+    
+    // Validate stock numbers
+    if (isNaN(stockCurrent) || isNaN(stockTotal) || stockCurrent < 0 || stockTotal < 0) {
+      alert("Stock values must be valid positive numbers!");
+      return;
+    }
+    
+    if (stockCurrent > stockTotal) {
+      alert("Current stock cannot be greater than total stock!");
+      return;
+    }
+
+    // Validate price format
+    const priceRegex = /^\$?\d+(\.\d{2})?$/;
+    if (!priceRegex.test(newProduct.price.replace(/[,$]/g, ''))) {
+      alert("Please enter a valid price format (e.g., $49.99 or 49.99)!");
+      return;
+    }
+
+    const statusText = newProduct.status.toUpperCase();
+    const payload = {
+      ...newProduct,
+      stockCurrent,
+      stockTotal,
+      status: statusText,
+      lastUpdated: new Date().toLocaleString(),
+    };
+    
+    try {
+      if (isEditing) {
+        // Update product
+        const response = await fetch(`${API_URL}/${editProductId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to update product');
+        }
+      } else {
+        // Add product
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to add product');
+        }
+      }
+      
+      // Refresh products
+      const response = await fetch(API_URL);
+      if (!response.ok) {
+        throw new Error('Failed to fetch updated products');
+      }
+      
+      const data = await response.json();
+      setProducts(
+        data.map((p) => ({
+          ...p,
+          icon: <FaBook />,
+          stockColor:
+            p.stockCurrent / p.stockTotal > 0.5
+              ? "#3b82f6"
+              : p.stockCurrent > 0
+              ? "#f59e0b"
+              : "#6b7280",
+          statusColor:
+            p.status === "IN STOCK"
+              ? "#22c55e"
+              : p.status === "LOW STOCK"
+              ? "#f59e0b"
+              : "#ef4444",
+        }))
+      );
+      
+      setShowForm(false);
+      setNewProduct({
+        name: "",
+        code: "",
+        category: "",
+        price: "",
+        stockCurrent: "",
+        stockTotal: "",
+        status: "",
+        supplier: "",
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert(`Error: ${error.message}`);
+    }
   };
 
   const handleFormCancel = () => {
@@ -202,7 +274,7 @@ const Product = () => {
   // -------------------------------
   const handleEdit = (product) => {
     setIsEditing(true);
-    setEditProductId(product.id);
+    setEditProductId(product._id);
     setNewProduct({
       name: product.name,
       code: product.code,
@@ -216,14 +288,49 @@ const Product = () => {
     setShowForm(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
-      setProducts(products.filter((p) => p.id !== id));
+      try {
+        const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
+        
+        if (!response.ok) {
+          throw new Error('Failed to delete product');
+        }
+        
+        // Refresh products
+        const refreshResponse = await fetch(API_URL);
+        if (!refreshResponse.ok) {
+          throw new Error('Failed to refresh products after deletion');
+        }
+        
+        const data = await refreshResponse.json();
+        setProducts(
+          data.map((p) => ({
+            ...p,
+            icon: <FaBook />,
+            stockColor:
+              p.stockCurrent / p.stockTotal > 0.5
+                ? "#3b82f6"
+                : p.stockCurrent > 0
+                ? "#f59e0b"
+                : "#6b7280",
+            statusColor:
+              p.status === "IN STOCK"
+                ? "#22c55e"
+                : p.status === "LOW STOCK"
+                ? "#f59e0b"
+                : "#ef4444",
+          }))
+        );
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        alert(`Error deleting product: ${error.message}`);
+      }
     }
   };
 
   return (
-    <div className="product-container">
+    <div className="product-container" style={{ marginLeft: '240px' }}>
       {/* Hero Section */}
       <div className="hero-section">
         <div className="hero-content">
@@ -264,7 +371,7 @@ const Product = () => {
         </div>
 
         {/* Animated Filter Panel */}
-        <div className={`filter-panel ${showFilters ? 'show' : ''}`}>
+          <div className={`filter-panel${showFilters ? ' show' : ''}`}>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
@@ -393,7 +500,7 @@ const Product = () => {
                 </div>
                 <div
                   className="action-icon delete-icon"
-                  onClick={() => handleDelete(product.id)}
+                  onClick={() => handleDelete(product._id)}
                 >
                   <FaTrashAlt />
                 </div>
@@ -416,84 +523,119 @@ const Product = () => {
             
             <form onSubmit={handleFormSubmit} className="product-form">
               <div className="form-grid">
-                <input
-                  name="name"
-                  placeholder="Book Name"
-                  value={newProduct.name}
-                  onChange={handleFormChange}
-                  className="form-input"
-                  required
-                />
-                <input
-                  name="code"
-                  placeholder="Product Code"
-                  value={newProduct.code}
-                  onChange={handleFormChange}
-                  className="form-input"
-                  required
-                />
-                <select
-                  name="category"
-                  value={newProduct.category}
-                  onChange={handleFormChange}
-                  className="form-select"
-                  required
-                >
-                  <option value="">Select Category</option>
-                  {categories.filter(c => c !== "All Categories").map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-                <input
-                  name="price"
-                  placeholder="Price (e.g., $49.99)"
-                  value={newProduct.price}
-                  onChange={handleFormChange}
-                  className="form-input"
-                  required
-                />
-                <input
-                  name="stockCurrent"
-                  type="number"
-                  placeholder="Current Stock"
-                  value={newProduct.stockCurrent}
-                  onChange={handleFormChange}
-                  className="form-input"
-                  required
-                />
-                <input
-                  name="stockTotal"
-                  type="number"
-                  placeholder="Total Stock"
-                  value={newProduct.stockTotal}
-                  onChange={handleFormChange}
-                  className="form-input"
-                  required
-                />
-                <select
-                  name="status"
-                  value={newProduct.status}
-                  onChange={handleFormChange}
-                  className="form-select"
-                  required
-                >
-                  <option value="">Select Status</option>
-                  {statuses.filter(s => s !== "All Status").map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-                <select
-                  name="supplier"
-                  value={newProduct.supplier}
-                  onChange={handleFormChange}
-                  className="form-select"
-                  required
-                >
-                  <option value="">Select Supplier</option>
-                  {suppliers.filter(s => s !== "All Suppliers").map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                <div className="form-group">
+                  <label className="form-label">Book Name</label>
+                  <input
+                    name="name"
+                    placeholder="Enter book name"
+                    value={newProduct.name}
+                    onChange={handleFormChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Product Code</label>
+                  <input
+                    name="code"
+                    placeholder="Enter product code"
+                    value={newProduct.code}
+                    onChange={handleFormChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Category</label>
+                  <select
+                    name="category"
+                    value={newProduct.category}
+                    onChange={handleFormChange}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    {categories.filter(c => c !== "All Categories").map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Price</label>
+                  <input
+                    name="price"
+                    placeholder="e.g., $49.99"
+                    value={newProduct.price}
+                    onChange={handleFormChange}
+                    className="form-input"
+                    pattern="^\$?\d+(\.\d{2})?$"
+                    title="Please enter a valid price format (e.g., $49.99 or 49.99)"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Current Stock</label>
+                  <input
+                    name="stockCurrent"
+                    type="number"
+                    min="0"
+                    placeholder="Enter current stock"
+                    value={newProduct.stockCurrent}
+                    onChange={handleFormChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Total Stock</label>
+                  <input
+                    name="stockTotal"
+                    type="number"
+                    min="1"
+                    placeholder="Enter total stock"
+                    value={newProduct.stockTotal}
+                    onChange={handleFormChange}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Status</label>
+                  <select
+                    name="status"
+                    value={newProduct.status}
+                    onChange={handleFormChange}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select Status</option>
+                    {statuses.filter(s => s !== "All Status").map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Supplier</label>
+                  <select
+                    name="supplier"
+                    value={newProduct.supplier}
+                    onChange={handleFormChange}
+                    className="form-select"
+                    required
+                  >
+                    <option value="">Select Supplier</option>
+                    {suppliers.filter(s => s !== "All Suppliers").map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               
               <div className="form-actions">

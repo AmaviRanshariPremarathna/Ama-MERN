@@ -1,118 +1,161 @@
-// Home.js
-import React, { useEffect } from 'react';
-import './Home.css';
+import React, { useEffect } from "react";
+import "./Home.css";
 
-const Home = () => {
-
-  // Animate statistics counters
+const Home = ({ setCurrentPage }) => {
   useEffect(() => {
-    const stats = document.querySelectorAll('.stat-number');
+    // Smooth scrolling
+    const anchors = document.querySelectorAll('a[href^="#"]');
+    const handleClick = (e) => {
+      const target = document.querySelector(e.currentTarget.getAttribute("href"));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: "smooth" });
+      }
+    };
+    anchors.forEach((a) => a.addEventListener("click", handleClick));
 
-    const animateNumber = (el, target) => {
-      let count = 0;
-      const step = Math.ceil(target / 100);
-      const interval = setInterval(() => {
-        count += step;
-        if (count >= target) {
-          count = target;
-          clearInterval(interval);
-        }
-        el.textContent = count;
-      }, 20);
+    // Navbar scroll effect
+    const navbar = document.querySelector('.navbar');
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        navbar.classList.add('navbar-scrolled');
+      } else {
+        navbar.classList.remove('navbar-scrolled');
+      }
     };
 
-    stats.forEach((el) => {
-      animateNumber(el, parseInt(el.dataset.value));
-    });
+    window.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      anchors.forEach((a) => a.removeEventListener("click", handleClick));
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
+  const handleInventoryPanelClick = (e) => {
+    e.preventDefault();
+    if (setCurrentPage) {
+      setCurrentPage('dashboard');
+    }
+  };
+
   return (
-    <div className="home-container">
-
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="hero-text">
-          <h1>Exchange. Learn. Save.</h1>
-          <p>Find, share, and exchange books with your university peers effortlessly.</p>
-          <div className="hero-buttons">
-            <button className="btn-primary">Get Started</button>
-            <button className="btn-secondary">Browse Books</button>
-          </div>
-        </div>
-        <div className="hero-image">
-          <img src="https://i.ibb.co/3c8r7b2/hero-books.png" alt="Books Illustration" />
-        </div>
-      </section>
-
-      {/* How It Works */}
-      <section className="how-it-works">
-        <h2>How It Works</h2>
-        <div className="steps">
-          <div className="step-card">
-            <div className="step-icon">📚</div>
-            <h3>List Your Book</h3>
-            <p>Share the books you no longer need and help others.</p>
-          </div>
-          <div className="step-card">
-            <div className="step-icon">🔍</div>
-            <h3>Find Books</h3>
-            <p>Search for books your peers are offering in your university.</p>
-          </div>
-          <div className="step-card">
-            <div className="step-icon">🤝</div>
-            <h3>Exchange & Save</h3>
-            <p>Connect with students and exchange books safely and easily.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Books */}
-      <section className="featured-books">
-        <h2>Featured Books</h2>
-        <div className="book-grid">
-          {[1,2,3,4].map((i) => (
-            <div className="book-card" key={i}>
-              <img src="https://i.ibb.co/ZYW3VTp/book-sample.png" alt="Book Cover" />
-              <h4>Book Title {i}</h4>
-              <p>Author Name</p>
-              <span className="book-status available">Available</span>
-              <button className="btn-primary">Request Book</button>
+    <div className="app-layout">
+      <div className="main-content">
+        {/* Navbar */}
+        <nav className="navbar">
+          <div className="nav-container">
+            <div className="logo-section">
+              <span className="logo-icon">📚</span>
+              <span className="logo-text">BookBridge</span>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="stats-section">
-        <div className="stat-item">
-          <h3 className="stat-number" data-value="250">0</h3>
-          <p>Books Listed</p>
-        </div>
-        <div className="stat-item">
-          <h3 className="stat-number" data-value="150">0</h3>
-          <p>Active Students</p>
-        </div>
-        <div className="stat-item">
-          <h3 className="stat-number" data-value="75">0</h3>
-          <p>Successful Exchanges</p>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="testimonials">
-        <h2>What Students Say</h2>
-        <div className="testimonial-cards">
-          <div className="testimonial-card">
-            <p>"This platform helped me get all the textbooks I needed at no cost!"</p>
-            <h4>- Jane Doe, 2nd Year</h4>
+            <ul className="nav-links">
+              <li><a href="#home">Home</a></li>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#about">About Us</a></li>
+              <li><a href="#contact">Contact Us</a></li>
+              <li><a href="#inventory" className="btn-inventory" onClick={handleInventoryPanelClick}>Inventory Panel</a></li>
+              <li><a href="#login" className="btn-login">Login</a></li>
+              <li><a href="#signup" className="btn-primary">Sign Up</a></li>
+            </ul>
           </div>
-          <div className="testimonial-card">
-            <p>"I could easily exchange my old books and save a lot."</p>
-            <h4>- John Smith, 3rd Year</h4>
-          </div>
-        </div>
-      </section>
+        </nav>
 
+        {/* Hero Section */}
+        <section className="hero" id="home">
+          <div className="hero-overlay">
+            <div className="hero-content">
+              <h1>Books That Travel, Knowledge That Lasts</h1>
+              <p>
+                Trade your textbooks, support peers, and build a thriving learning
+                community together.
+              </p>
+              <div className="hero-buttons">
+                <a href="#features" className="btn-primary">Get Started</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className="features" id="features">
+          <h2 className="section-title">Why Choose BookSwap?</h2>
+          <div className="features-grid">
+            <div className="feature-card">
+              <div className="feature-icon">🔍</div>
+              <h3>Smart Search</h3>
+              <p>Find textbooks quickly with advanced filters.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🤝</div>
+              <h3>Peer-to-Peer Exchange</h3>
+              <p>Connect with fellow students for direct book swaps.</p>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">📦</div>
+              <h3>Inventory Alerts</h3>
+              <p>Get notified when your favorite books are available.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="footer">
+          <div className="footer-container">
+            <div className="footer-top">
+              {/* Logo Section */}
+              <div className="footer-section footer-logo">
+                <div className="logo-content">
+                  <span className="logo-icon">📚</span>
+                  <span className="logo-text">BookSwap</span>
+                </div>
+                <p>
+                  A student-driven book exchange platform that helps you save
+                  money, share knowledge, and build a stronger learning community.
+                </p>
+              </div>
+
+              {/* Links Section */}
+              <div className="footer-section footer-links-section">
+                <h4>Quick Links</h4>
+                <ul>
+                  <li><a href="#home">Home</a></li>
+                  <li><a href="#features">Features</a></li>
+                  <li><a href="#about">About</a></li>
+                  <li><a href="#contact">Contact</a></li>
+                </ul>
+              </div>
+
+              {/* Contact Section */}
+              <div className="footer-section footer-contact">
+                <h4>Contact Us</h4>
+                <p><strong>Email:</strong> support@bookswap.com</p>
+                <p><strong>Phone:</strong> +94 123 456 789</p>
+                <p><strong>Address:</strong> Faculty of Computing, SLIIT, Malabe</p>
+              </div>
+
+              {/* Social Section */}
+              <div className="footer-section footer-social">
+                <h4>Follow Us</h4>
+                <div className="social-icons">
+                  <a href="https://facebook.com"><img src="https://img.icons8.com/color/48/facebook-new.png" alt="Facebook" /></a>
+                  <a href="https://twitter.com"><img src="https://img.icons8.com/color/48/twitter--v1.png" alt="Twitter" /></a>
+                  <a href="https://instagram.com"><img src="https://img.icons8.com/color/48/instagram-new--v1.png" alt="Instagram" /></a>
+                  <a href="https://linkedin.com"><img src="https://img.icons8.com/color/48/linkedin.png" alt="LinkedIn" /></a>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom */}
+            <div className="footer-bottom">
+              <p>
+                &copy; 2025 BookSwap. All rights reserved. | Privacy Policy | Terms
+                of Service
+              </p>
+            </div>
+          </div>
+        </footer>
+      </div>
     </div>
   );
 };

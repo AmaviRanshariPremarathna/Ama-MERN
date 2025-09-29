@@ -16,7 +16,7 @@ const mockBooks = [
   { id: 12, title: 'Java Programming', author: 'Joyce Farrell', category: 'Information Technology', condition: 'Excellent', price: 1850, image: 'data:image/jpeg;base64,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',rating: 4.9, reviews: 3421 },
 ];
 
-const Category = ({ viewBookDescription }) => {
+const Category = ({ viewBookDescription = () => {} }) => {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState([0, 5000]);
@@ -28,11 +28,16 @@ const Category = ({ viewBookDescription }) => {
   }, []);
 
   const filteredBooks = books.filter(book => {
-    const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          book.author.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPrice = book.price >= priceRange[0] && book.price <= priceRange[1];
-    const matchesCategory = selectedCategory === 'All' || book.category === selectedCategory;
-    return matchesSearch && matchesPrice && matchesCategory;
+    try {
+      const matchesSearch = book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            book.author?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesPrice = book.price >= priceRange[0] && book.price <= priceRange[1];
+      const matchesCategory = selectedCategory === 'All' || book.category === selectedCategory;
+      return matchesSearch && matchesPrice && matchesCategory;
+    } catch (error) {
+      console.error('Error filtering books:', error);
+      return false;
+    }
   });
 
   const categories = ['All', ...new Set(mockBooks.map(book => book.category))];
@@ -57,17 +62,24 @@ const Category = ({ viewBookDescription }) => {
   };
 
   const renderStars = (rating) => {
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    try {
+      if (!rating || isNaN(rating)) return <div className="rating-stars">☆☆☆☆☆</div>;
+      
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 !== 0;
+      const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
-    return (
-      <div className="rating-stars">
-        {'★'.repeat(fullStars)}
-        {hasHalfStar && '☆'}
-        {'☆'.repeat(emptyStars)}
-      </div>
-    );
+      return (
+        <div className="rating-stars">
+          {'★'.repeat(fullStars)}
+          {hasHalfStar && '☆'}
+          {'☆'.repeat(emptyStars)}
+        </div>
+      );
+    } catch (error) {
+      console.error('Error rendering stars:', error);
+      return <div className="rating-stars">☆☆☆☆☆</div>;
+    }
   };
 
   return (
@@ -165,17 +177,21 @@ const Category = ({ viewBookDescription }) => {
       <div className="featured-section">
         <div className="featured-content">
           <div className="video-container">
-            <video controls className="featured-video">
-              <source src="https://www.pexels.com/video/close-up-view-of-a-couple-reading-a-book-6264050/" type="video/mp4" />
+            <video 
+              autoPlay 
+              muted 
+              loop 
+              className="featured-video"
+              onError={(e) => {
+                console.error('Video failed to load:', e);
+                e.target.style.display = 'none';
+              }}
+            >
+              <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+              <source src="https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4" type="video/mp4" />
+              <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAACKBtZGF0AAAC8wYF///v3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2MiByMzA4MSBhM2Y0NDA3IC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyMSAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTYgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTEwIHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAAOWWIhAA3//p+C7v8tDDSTjf97w6BcLhUHdwizrkTLwS6ywLOa0d4vc5YD+V5Hs8+9H6S7I2sNj7Y9xmvNzY7H4n5Kz5BgAACqJmqBwQ=" type="video/mp4" />
               Your browser does not support the video tag.
             </video>
-            <div className="video-overlay">
-              <div className="play-button">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="5,3 19,12 5,21"></polygon>
-                </svg>
-              </div>
-            </div>
           </div>
           <div className="featured-text">
             <h2 className="featured-title">The Power of Books</h2>
@@ -239,14 +255,18 @@ const Category = ({ viewBookDescription }) => {
                   <h3 className="book-title">{book.title}</h3>
                   <div className="book-rating">
                     {renderStars(book.rating)}
-                    <span className="rating-text">{book.rating} ({book.reviews})</span>
+                    <span className="rating-text">
+                      {book.rating || 'N/A'} ({book.reviews || 0})
+                    </span>
                   </div>
                 </div>
 
                 <p className="book-author">by {book.author}</p>
                 <div className="book-meta">
                   <span className="book-category">{book.category}</span>
-                  <span className="book-price">Rs {book.price.toLocaleString()}</span>
+                  <span className="book-price">
+                    Rs {book.price ? book.price.toLocaleString() : 'N/A'}
+                  </span>
                 </div>
 
                 {book.description ? (
