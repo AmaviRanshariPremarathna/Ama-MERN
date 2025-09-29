@@ -10,6 +10,7 @@ import BookDescription from './Components/BookDescription';
 import Supplier from './Components/Supplier';
 import Profile from './Components/Profile'; // ✅ Import Profile
 import BorrowReturn from './Components/BorrowReturn';
+import { DashboardProvider } from './contexts/DashboardContext';
 
 function App() {
   const [currentPage, setCurrentPage] = useState('home'); // Default page is Home
@@ -29,7 +30,7 @@ function App() {
     // Render other pages based on currentPage
     switch (currentPage) {
       case 'home':
-        return <Home />;
+        return <Home setCurrentPage={setCurrentPage} />;
       case 'dashboard':
         return <Dashboard />;
       case 'products':
@@ -54,17 +55,26 @@ function App() {
       case 'borrowReturn':
         return <BorrowReturn />;
       default:
-        return <Home />;
+        return <Home setCurrentPage={setCurrentPage} />;
     }
   };
 
   return (
-    <div className="app-container" style={{ display: 'flex', minHeight: '100vh' }}>
-      <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-      <main style={{ flex: 1, padding: '20px' }}>
-        {renderPage()}
-      </main>
-    </div>
+    <DashboardProvider>
+      <div className="app-container" style={{ display: 'flex', minHeight: '100vh' }}>
+        {/* Only show sidebar when not on home page */}
+        {currentPage !== 'home' && (
+          <Sidebar currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        )}
+        <main style={{ 
+          flex: 1, 
+          padding: currentPage === 'home' ? '0' : '20px',
+          width: currentPage === 'home' ? '100%' : 'calc(100% - 180px)'
+        }}>
+          {renderPage()}
+        </main>
+      </div>
+    </DashboardProvider>
   );
 }
 
