@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import "./Home.css";
 
-const Home = () => {
+const Home = ({ setCurrentPage }) => {
   useEffect(() => {
     // Smooth scrolling
     const anchors = document.querySelectorAll('a[href^="#"]');
@@ -32,6 +32,13 @@ const Home = () => {
     };
   }, []);
 
+  const handleInventoryPanelClick = (e) => {
+    e.preventDefault();
+    if (setCurrentPage) {
+      setCurrentPage('dashboard');
+    }
+  };
+
   return (
     <div className="app-layout">
       <div className="main-content">
@@ -47,6 +54,7 @@ const Home = () => {
               <li><a href="#features">Features</a></li>
               <li><a href="#about">About Us</a></li>
               <li><a href="#contact">Contact Us</a></li>
+              <li><a href="#inventory" className="btn-inventory" onClick={handleInventoryPanelClick}>Inventory Panel</a></li>
               <li><a href="#login" className="btn-login">Login</a></li>
               <li><a href="#signup" className="btn-primary">Sign Up</a></li>
             </ul>

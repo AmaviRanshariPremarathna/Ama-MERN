@@ -19,7 +19,7 @@ const useAPI = () => {
     refreshData
   } = useDashboard();
 
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
   const handleAPICall = async (apiCall, onSuccess) => {
     setLoading(true);

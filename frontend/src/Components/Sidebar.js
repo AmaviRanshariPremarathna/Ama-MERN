@@ -2,14 +2,14 @@
 import React from 'react';
 import './Sidebar.css';
 import { 
-  FaHome, 
   FaBox, 
   FaTh, 
   FaTruck, 
   FaUsers, 
   FaChartBar, 
   FaUserCog, 
-  FaExchangeAlt  // ✅ Added for Borrow & Return
+  FaExchangeAlt,  // ✅ Added for Borrow & Return
+  FaArrowLeft     // ✅ Added for Back to Home
 } from 'react-icons/fa';
 
 const Sidebar = ({ currentPage, setCurrentPage }) => {
@@ -17,13 +17,13 @@ const Sidebar = ({ currentPage, setCurrentPage }) => {
     <div className="sidebar">
       <h2 className="sidebar-title">Inventory MS</h2>
       <ul className="sidebar-menu">
-
+        
         <li 
-          className={`menu-item ${currentPage === 'home' ? 'active' : ''}`} 
+          className="menu-item back-to-home" 
           onClick={() => setCurrentPage('home')}
         >
-          <FaHome className="menu-icon" />
-          <span>Home</span>
+          <FaArrowLeft className="menu-icon" />
+          <span>Back to Home</span>
         </li>
 
         <li 

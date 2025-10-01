@@ -24,7 +24,7 @@ export const DashboardProvider = ({ children }) => {
   const [refreshing, setRefreshing] = useState(false);
 
   // API base URL - adjust this to match your backend
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 
   // Fetch data from APIs
   const fetchDashboardData = useCallback(async () => {

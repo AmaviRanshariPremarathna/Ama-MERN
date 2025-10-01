@@ -21,12 +21,12 @@ app.use("/inventory", inventoryRouter);
 app.use("/products", productRouter);
 app.use("/suppliers", supplierRouter);
 
-mongoose.connect("mongodb://localhost:27017/admin", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect("mongodb://localhost:27017/admin")
 .then(() => console.log("Connected to MongoDB Compass (localhost:27017, DB: admin)"))
 .then(() => {
-    app.listen(5000);
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
 })
 .catch((err) => console.log(err));

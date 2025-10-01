@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 
 // Backend CRUD API base URL
-const API_URL = "http://localhost:5000/products";
+const API_URL = "http://localhost:5001/products";
 
 
 const Product = () => {

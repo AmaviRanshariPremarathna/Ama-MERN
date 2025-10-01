@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 
 // Backend CRUD API base URL
-const API_URL = "http://localhost:5000/suppliers";
+const API_URL = "http://localhost:5001/suppliers";
 
 export default function Supplier() {
   const [suppliers, setSuppliers] = useState([]);
