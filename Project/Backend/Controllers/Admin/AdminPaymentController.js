@@ -2,13 +2,24 @@ const Payment = require("../../Model/AdminPaymentModel");
 const Wallet = require("../../Model/WalletModel");
 const Notification = require("../../Model/NotificationModel");
 
-// Create new payment (user side form)
+// ✅ Create new payment (User side form)
 const createPayment = async (req, res) => {
   try {
     const { codeId, buyerId, giverId, bookId, amount } = req.body;
 
+    // 🔹 Basic field validations
     if (!codeId || !buyerId || !giverId || !bookId || !amount) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // 🔹 Buyer and giver cannot be same
+    if (buyerId === giverId) {
+      return res.status(400).json({ message: "Buyer and Giver cannot be the same" });
+    }
+
+    // 🔹 Amount must be valid
+    if (isNaN(amount) || amount <= 0) {
+      return res.status(400).json({ message: "Invalid payment amount" });
     }
 
     const payment = new Payment({ codeId, buyerId, giverId, bookId, amount });
@@ -27,7 +38,7 @@ const createPayment = async (req, res) => {
   }
 };
 
-// Get all payments
+// ✅ Get all payments
 const getAllPayments = async (req, res) => {
   try {
     const payments = await Payment.find().sort({ date: -1 });
@@ -40,7 +51,7 @@ const getAllPayments = async (req, res) => {
   }
 };
 
-// Approve payment (wallet updates)
+// ✅ Approve payment (wallet updates)
 const approvePayment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -57,6 +68,7 @@ const approvePayment = async (req, res) => {
     if (buyerWallet.balance < payment.amount) {
       return res.status(400).json({ message: "Insufficient funds in buyer wallet" });
     }
+
     buyerWallet.balance -= payment.amount;
     await buyerWallet.save();
 
@@ -85,7 +97,7 @@ const approvePayment = async (req, res) => {
     await payment.save();
 
     res.json({
-      message: "Payment approved and wallets updated",
+      message: "Payment approved and wallets updated successfully",
       payment,
       buyerWallet,
       giverWallet,
@@ -98,7 +110,7 @@ const approvePayment = async (req, res) => {
   }
 };
 
-// Reject payment
+// ✅ Reject payment
 const rejectPayment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -118,19 +130,19 @@ const rejectPayment = async (req, res) => {
   }
 };
 
-// Delete payment
+// ✅ Delete payment
 const deletePayment = async (req, res) => {
   try {
     const { id } = req.params;
     const payment = await Payment.findByIdAndDelete(id);
     if (!payment) return res.status(404).json({ message: "Payment not found" });
-    res.json({ message: "Payment deleted", payment });
+    res.json({ message: "Payment deleted successfully", payment });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Get payments by specific date (Reports)
+// ✅ Get payments by date (Reports)
 const getPaymentsByDate = async (req, res) => {
   try {
     const { date } = req.query;
@@ -141,64 +153,50 @@ const getPaymentsByDate = async (req, res) => {
     end.setHours(23, 59, 59, 999);
 
     const payments = await Payment.find({ date: { $gte: start, $lte: end } }).sort({ date: -1 });
-
     if (!payments.length) return res.status(404).json({ message: "No payments found for this date" });
 
     const totalAmount = payments.reduce((sum, tx) => sum + tx.amount, 0);
-
     return res.status(200).json({ payments, totalAmount });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 };
 
-// 🔹 Get all payments (transactions) by Buyer
+// ✅ Get payments by Buyer
 const getPaymentsByBuyer = async (req, res) => {
   try {
     const { buyerId } = req.params;
     const payments = await Payment.find({ buyerId }).sort({ date: -1 });
-
-    if (!payments.length) {
-      return res.status(404).json({ message: "No payments found for this buyer" });
-    }
-
+    if (!payments.length) return res.status(404).json({ message: "No payments found for this buyer" });
     res.status(200).json({ payments });
   } catch (err) {
     res.status(500).json({ message: "Error fetching buyer payments", error: err.message });
   }
 };
 
-// 🔹 Get all payments (transactions) by Giver
+// ✅ Get payments by Giver
 const getPaymentsByGiver = async (req, res) => {
   try {
     const { giverId } = req.params;
     const payments = await Payment.find({ giverId }).sort({ date: -1 });
-
-    if (!payments.length) {
-      return res.status(404).json({ message: "No payments found for this giver" });
-    }
-
+    if (!payments.length) return res.status(404).json({ message: "No payments found for this giver" });
     res.status(200).json({ payments });
   } catch (err) {
     res.status(500).json({ message: "Error fetching giver payments", error: err.message });
   }
 };
 
-// Get all transactions of a user (buyer + giver)
+// ✅ Get all transactions of a user (buyer + giver)
 const getUserTransactions = async (req, res) => {
   try {
     const { userId } = req.params;
-
     const buyerTransactions = await Payment.find({ buyerId: userId }).sort({ date: -1 });
     const giverTransactions = await Payment.find({ giverId: userId }).sort({ date: -1 });
-
     res.status(200).json({ buyerTransactions, giverTransactions });
   } catch (err) {
     res.status(500).json({ message: "Error fetching user transactions", error: err.message });
   }
 };
-
-
 
 module.exports = {
   createPayment,
