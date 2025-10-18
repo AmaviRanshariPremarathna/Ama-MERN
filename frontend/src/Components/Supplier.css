@@ -168,12 +168,11 @@
 .supplier-container {
   max-width: 1200px;
   margin: 0 auto;
-  margin-left: 180px; /* Match sidebar width */
   padding: 20px;
   background-color: #ffffff;
   font-family: Arial, sans-serif;
   color: #333333;
-  width: calc(100% - 180px);
+  width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
 }

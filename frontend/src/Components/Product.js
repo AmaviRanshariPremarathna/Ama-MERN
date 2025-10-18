@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./Product.css";
+import Header from "./Header";
+import { useInventory } from '../contexts/InventoryContext';
 import {
   FaBook,
   FaPencilAlt,
@@ -11,10 +13,11 @@ import {
 } from "react-icons/fa";
 
 // Backend CRUD API base URL
-const API_URL = "http://localhost:5001/products";
+const API_URL = "http://localhost:5001/api/products";
 
 
-const Product = () => {
+const Product = ({ setCurrentPage }) => {
+  const { syncWithProducts } = useInventory();
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
@@ -238,6 +241,9 @@ const Product = () => {
         }))
       );
       
+      // Sync with inventory context to trigger alerts
+      await syncWithProducts();
+      
       setShowForm(false);
       setNewProduct({
         name: "",
@@ -322,6 +328,9 @@ const Product = () => {
                 : "#ef4444",
           }))
         );
+        
+        // Sync with inventory context to trigger alerts
+        await syncWithProducts();
       } catch (error) {
         console.error('Error deleting product:', error);
         alert(`Error deleting product: ${error.message}`);
@@ -330,7 +339,9 @@ const Product = () => {
   };
 
   return (
-    <div className="product-container" style={{ marginLeft: '240px' }}>
+    <>
+      <Header setCurrentPage={setCurrentPage} />
+      <div className="product-container" style={{ marginLeft: '240px', marginTop: '80px' }}>
       {/* Hero Section */}
       <div className="hero-section">
         <div className="hero-content">
@@ -654,7 +665,8 @@ const Product = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

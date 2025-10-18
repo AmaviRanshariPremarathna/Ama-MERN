@@ -19,8 +19,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0,/* Product container */
 .product-container {
-  margin-left: 180px; /* Match sidebar width */
-  width: calc(100% - 180px);
+  width: 100%;
   overflow-x: hidden;
   box-sizing: border-box;
   padding: 20px;
@@ -59,7 +58,7 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: calc(100vw - 180px); /* Main content width minus sidebar */
+  width: calc(100vw - 250px); /* Main content width minus sidebar */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -620,8 +619,8 @@
 .modal {
   position: fixed;
   top: 0;
-  left: 180px; /* Match sidebar width */
-  width: calc(100vw - 180px); /* Align with main content area */
+  left: 250px; /* Match sidebar width */
+  width: calc(100vw - 250px); /* Align with main content area */
   height: 100vh;
   display: flex;
   align-items: center;

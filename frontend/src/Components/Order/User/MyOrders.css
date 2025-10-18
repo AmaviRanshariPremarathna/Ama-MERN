@@ -1,0 +1,17 @@
+.myorders-page { padding: 20px; }
+.myorders-container { max-width: 1100px; margin: 0 auto; }
+.filters { display: flex; gap: 10px; margin-bottom: 16px; }
+.filters input, .filters select { padding: 8px 10px; border: 1px solid #dbe2e8; border-radius: 6px; }
+.orders-table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #eef2f5; }
+.orders-table th, .orders-table td { padding: 10px 12px; border-bottom: 1px solid #f1f4f7; text-align: left; }
+.status-badge { padding: 4px 8px; border-radius: 10px; font-size: 12px; }
+.status-badge.pending { background: #fff4e5; color: #b26a00; }
+.status-badge.approved { background: #e9f8ef; color: #1e7a36; }
+.status-badge.rejected { background: #fdecea; color: #9f2d20; }
+.status-badge.cancelled { background: #f1f2f3; color: #5f6b73; }
+.status-badge.completed { background: #e8f1fb; color: #1f5ea8; }
+.items-list { margin: 6px 0 0 16px; }
+.order-book-id { font-family: monospace; color: #7f8c8d; }
+.view-btn { background: #2d6cdf; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+.error-text { color: #e74c3c; }
+
